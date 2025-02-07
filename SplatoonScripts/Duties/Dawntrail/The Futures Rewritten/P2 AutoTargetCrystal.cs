@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.Configuration;
 using ECommons.DalamudServices;
 using ECommons.DalamudServices.Legacy;
 using ECommons.GameHelpers;
@@ -16,11 +17,17 @@ public class P2_AutoTargetCrystal : SplatoonScript
     public override HashSet<uint>? ValidTerritories => [1238];
     public override Metadata? Metadata => new(1, "Garume");
 
+    private Config C => Controller.GetConfig<Config>();
+
     private IEnumerable<IBattleNpc> LightCrystals => Svc.Objects.Where(x => x.DataId == 0x45A3).OfType<IBattleNpc>();
     private IBattleNpc? IceCrystal => Svc.Objects.FirstOrDefault(x => x.DataId == 0x45A5) as IBattleNpc;
 
     public override void OnSettingsDraw()
     {
+        ImGui.Checkbox("一定範囲以内にある氷晶だけを対象にする", ref C.LimitDistance);
+        if (C.LimitDistance) {
+            ImGui.SliderFloat("対象とする範囲(m)", ref C.distance, 0f, 30f);
+        }
         ImGui.Text("Light Crystals");
         foreach (var crystal in LightCrystals) ImGui.Text(crystal.Name.ToString());
     }
@@ -32,10 +39,16 @@ public class P2_AutoTargetCrystal : SplatoonScript
 
     private void SetNearTarget()
     {
-        if (LightCrystals.Where(x => x.CurrentHp != 0)
-                .MinBy(x => Vector3.Distance(x.Position, Player.Position)) is { } target)
+        if (LightCrystals.Where(x => x.CurrentHp != 0 && (!C.LimitDistance || Player.DistanceTo(x) < C.distance + x.HitboxRadius))
+                .MinBy(x => Player.DistanceTo(x)) is { } target)
             Svc.Targets.SetTarget(target);
         else if (IceCrystal is { } ice)
             Svc.Targets.SetTarget(ice);
+    }
+
+    private class Config : IEzConfig
+    {
+        public bool LimitDistance = false;
+        public float distance = 20f;
     }
 }

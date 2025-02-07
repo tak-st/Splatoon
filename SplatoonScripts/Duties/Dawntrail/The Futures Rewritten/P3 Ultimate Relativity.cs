@@ -601,7 +601,7 @@ public class P3_Ultimate_Relativity : SplatoonScript
                 {
                     var minWait = C.WaitRange.X;
                     var maxWait = C.WaitRange.Y;
-                    ImGui.SliderFloat2("Wait Range (sec)", ref C.WaitRange, 0f, 3f, "%.1f");
+                    ImGui.SliderFloat2("Wait Range (sec)", ref C.WaitRange, 0f, 7f, "%.1f");
                     if (Math.Abs(minWait - C.WaitRange.X) > 0.01f)
                     {
                         if (C.WaitRange.X > C.WaitRange.Y)
@@ -1003,7 +1003,7 @@ public class P3_Ultimate_Relativity : SplatoonScript
         public Direction Ignore1Direction = Direction.West;
         public Direction Ignore2Direction = Direction.East;
         public string LateFireCommand = "";
-        public InternationalString LookOutsideText = new() { En = "Look Outside", Jp = "外を見ろ" };
+        public InternationalString LookOutsideText = new() { En = "Look Outside", Jp = "外を見る" };
         public string MiddleFireCommand = "";
 
         public bool ShouldPlaceEruptionToHourglassOutside = false;

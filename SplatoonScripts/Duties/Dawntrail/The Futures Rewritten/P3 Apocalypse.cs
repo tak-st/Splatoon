@@ -334,18 +334,18 @@ public unsafe class P3_Apocalypse : SplatoonScript
     public override void OnSettingsDraw()
     {
         ImGui.SetNextItemWidth(200f);
-        ImGuiEx.SliderIntAsFloat("Delay before displaying AOE", ref C.DelayMS, 0, 12000);
-        ImGui.Checkbox("Show initial movement", ref C.ShowInitialApocMove);
-        ImGui.Checkbox("Show move guide for party (arrows to safe spot from initial movement)", ref C.ShowMoveGuide);
-        ImGui.Checkbox("Show tank bait guide (beta)", ref C.ShowTankGuide);
+        ImGuiEx.SliderIntAsFloat("AOE表示までの遅延", ref C.DelayMS, 0, 12000);
+        ImGui.Checkbox("初期移動を表示", ref C.ShowInitialApocMove);
+        ImGui.Checkbox("パーティ用移動ガイドを表示（初期移動から安全地点への矢印）", ref C.ShowMoveGuide);
+        ImGui.Checkbox("タンク誘導ガイドを表示（ベータ）", ref C.ShowTankGuide);
         ImGui.SetNextItemWidth(200f);
-        ImGuiEx.SliderIntAsFloat("Hide move guide and switch to tank bait guide at", ref C.TankDelayMS, 0, 30000);
-        new NuiBuilder().Section("Safe spots and adjustments").Widget(() =>
+        ImGuiEx.SliderIntAsFloat("タンク誘導ガイドに切り替える時間", ref C.TankDelayMS, 0, 30000);
+        new NuiBuilder().Section("安全地点と調整").Widget(() =>
         {
-            ImGuiEx.TextWrapped(EColor.RedBright, $"If you want to resolve adjusts, safe spot and stack position, fill the priority list.");
-            ImGui.Checkbox("Original groups for Dark Eruption", ref C.OriginalSpreads);
-            ImGuiEx.Text($"Select 4 safe spot positions for your default group");
-            ImGui.Checkbox("Different safe spot positions for clockwise/counter-clockwise", ref C.IsDifferentSafeSpots);
+            ImGuiEx.TextWrapped(EColor.RedBright, $"調整、安全地点、スタック位置を解決したい場合は、優先リストを入力してください。");
+            ImGui.Checkbox("ダークエラプションのオリジナルグループ", ref C.OriginalSpreads);
+            ImGuiEx.Text($"デフォルトグループのために4つの安全地点を選択してください");
+            ImGui.Checkbox("時計回り／反時計回りで異なる安全地点を使用", ref C.IsDifferentSafeSpots);
             //-4  1  2
             //-3  0  3
             //-2 -1  4
@@ -366,11 +366,11 @@ public unsafe class P3_Apocalypse : SplatoonScript
                 }
                 if(selectedPositions.Count == 4)
                 {
-                    ImGuiEx.Text(EColor.GreenBright, "Configuration is valid");
+                    ImGuiEx.Text(EColor.GreenBright, "設定は有効です");
                 }
                 else
                 {
-                    ImGuiEx.Text(EColor.RedBright, "Configuration is not valid. 4 positions must be selected.");
+                    ImGuiEx.Text(EColor.RedBright, "設定は無効です。4つの位置を選択してください。");
                 }
             }
             ImGui.Indent();
@@ -380,11 +380,11 @@ public unsafe class P3_Apocalypse : SplatoonScript
             }
             else
             {
-                ImGuiEx.Text("Clockwise pattern:");
+                ImGuiEx.Text("時計回りのパターン:");
                 ImGui.Indent();
                 drawSelector(C.SelectedPositions);
                 ImGui.Unindent();
-                ImGuiEx.Text("Counter-clockwise pattern:");
+                ImGuiEx.Text("反時計回りのパターン:");
                 ImGui.Indent();
                 ImGui.PushID("CCW");
                 drawSelector(C.SelectedPositionsAlt);
@@ -392,23 +392,23 @@ public unsafe class P3_Apocalypse : SplatoonScript
                 ImGui.Unindent();
             }
             ImGui.Unindent();
-            ImGuiEx.Text("Your default stack (when looking at Gaia):");
-            ImGuiEx.RadioButtonBool("Left", "Right", ref C.IsLeftStack, true);
+            ImGuiEx.Text("デフォルトのスタック（ガイアを見ている場合）:");
+            ImGuiEx.RadioButtonBool("左", "右", ref C.IsLeftStack, true);
             C.Priority.Draw();
         }).Draw();
-        if(ImGui.CollapsingHeader("Debug"))
+        if(ImGui.CollapsingHeader("デバッグ"))
         {
             ImGuiEx.Text($"""
-                NumDebuffs: {NumDebuffs}
+                ダメージデバフの数: {NumDebuffs}
                 """);
             foreach(var x in Svc.Objects.OfType<IPlayerCharacter>())
             {
                 ImGuiEx.Text($"{x.Name}: {GetDebuffTime(x)}");
             }
-            ImGui.Checkbox("Adjust", ref IsAdjust);
-            ImGui.Checkbox("ShowDebug", ref ShowDebug);
-            ImGuiEx.Text($"unadjusted: {C.SelectedPositions.Print()}");
-            ImGuiEx.Text($"Safe: {GetValidPositions(true).Print()}");
+            ImGui.Checkbox("調整", ref IsAdjust);
+            ImGui.Checkbox("デバッグ表示", ref ShowDebug);
+            ImGuiEx.Text($"調整前: {C.SelectedPositions.Print()}");
+            ImGuiEx.Text($"安全: {GetValidPositions(true).Print()}");
             var i = 0;
             foreach(var x in GetValidPositions(true))
             {
@@ -416,7 +416,7 @@ public unsafe class P3_Apocalypse : SplatoonScript
                 {
                     d.Enabled = true;
                     d.SetRefPosition(Positions[x].ToVector3(0));
-                    d.overlayText = $"Safe {x}";
+                    d.overlayText = $"安全 {x}";
                 }
             }
         }

@@ -65,18 +65,20 @@ public class P4_AutoTargetSwitcher : SplatoonScript
 
     public override void OnSettingsDraw()
     {
-        ImGui.Text("Auto Target Switcher");
-        ImGui.Text("Switches target object automatically");
+        ImGui.Text("オートターゲットスイッチャー");
+        ImGui.Text("ターゲットオブジェクトを自動で切り替えます");
 
-        ImGui.SliderFloat("Acceptable Percentage", ref C.AcceptablePercentage, 0f, 100f);
-        ImGui.SliderInt("Interval", ref C.Interval, 100, 1000);
+        ImGui.SliderFloat("許容範囲の割合", ref C.AcceptablePercentage, 0f, 100f);
+        ImGui.SliderInt("インターバル", ref C.Interval, 100, 2000);
 
-        ImGui.Checkbox("Should Disable When Low Hp", ref C.ShouldDisableWhenLowHp);
-        if (C.ShouldDisableWhenLowHp) ImGui.SliderFloat("Low Hp Percentage", ref C.LowHpPercentage, 0f, 100f);
+        ImGui.Checkbox("HPが低いときに無効化する", ref C.ShouldDisableWhenLowHp);
+        if (C.ShouldDisableWhenLowHp) ImGui.SliderFloat("低HPの割合", ref C.LowHpPercentage, 0f, 100f);
 
-        ImGui.Checkbox("Do not switch if target is not in melee range", ref C.LimitDistance);
+        ImGui.Checkbox("許容範囲内時にターゲットをランダムに選択しない", ref C.DisableRandomTarget);
 
-        ImGui.Checkbox("Timing Mode", ref C.TimingMode);
+        ImGui.Checkbox("ターゲットが近接範囲外の場合、切り替えない", ref C.LimitDistance);
+
+        ImGui.Checkbox("タイミングモード", ref C.TimingMode);
         if (C.TimingMode)
         {
             ImGui.Indent();
@@ -213,11 +215,13 @@ public class P4_AutoTargetSwitcher : SplatoonScript
                 }
                 else
                 {
-                    var randomIndex = _random.Next(_targets.Count);
-                    var randomTarget = _targets[randomIndex];
-                    Alert($"Switching to random target: {randomTarget.Name}");
-                    Svc.Targets.SetTarget(randomTarget);
-                    _currentTarget = randomTarget;
+                    if (!C.DisableRandomTarget) {
+                        var randomIndex = _random.Next(_targets.Count);
+                        var randomTarget = _targets[randomIndex];
+                        Alert($"Switching to random target: {randomTarget.Name}");
+                        Svc.Targets.SetTarget(randomTarget);
+                        _currentTarget = randomTarget;
+                    }
                 }
             }
             else
@@ -265,6 +269,7 @@ public class P4_AutoTargetSwitcher : SplatoonScript
         public int Interval = 300;
         public float LowHpPercentage = 1f;
         public bool ShouldDisableWhenLowHp;
+        public bool DisableRandomTarget = false;
         public bool TimingMode;
         public bool LimitDistance = false;
     }

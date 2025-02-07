@@ -6,6 +6,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons;
 using ECommons.Configuration;
 using ECommons.GameFunctions;
+using ECommons.GameHelpers;
 using ECommons.Hooks.ActionEffectTypes;
 using ECommons.ImGuiMethods;
 using ECommons.Logging;
@@ -46,6 +47,8 @@ public class P2_Light_Rampant_JP : SplatoonScript
 
     public Config C => Controller.GetConfig<Config>();
 
+    public InternationalString GoHereText = new() { En = "<< Go Here >>", Jp = "<< 担当位置 >>" };
+
     public override void OnActorControl(uint sourceId, uint command, uint p1, uint p2, uint p3, uint p4, uint p5,
         uint p6, ulong targetId,
         byte replaying)
@@ -67,30 +70,34 @@ public class P2_Light_Rampant_JP : SplatoonScript
         {
             if (target.GetObject() is IPlayerCharacter player) _aoeTargets.Add(player.Name.ToString());
 
-            var count = 0;
-            foreach (var aoeTarget in _aoeTargets)
-            {
-                if (C.PlayersCount == 1 && C.PriorityData1.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
-                if (C.PlayersCount == 2 && C.PriorityData2.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
-                if (C.PlayersCount == 3 && C.PriorityData3.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
+            if (!_aoeTargets.Any(x => x == Player.Name)) {
+                var count = 0;
+                foreach (var aoeTarget in _aoeTargets)
+                {
+                    if (C.PlayersCount == 1 && C.PriorityData1.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
+                    if (C.PlayersCount == 2 && C.PriorityData2.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
+                    if (C.PlayersCount == 3 && C.PriorityData3.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
+                }
+
+                var direction = C.Directions[count];
+
+                DuoLog.Warning($"Direction: {direction} Count: {count}");
+                const float radius = 16f;
+                var center = new Vector2(100f, 100f);
+                var angle = (int)direction;
+                var x = center.X + radius * MathF.Cos(angle * MathF.PI / 180);
+                var y = center.Y + radius * MathF.Sin(angle * MathF.PI / 180);
+
+                if (Controller.TryGetElementByName("Bait", out var bait))
+                {
+                    bait.Enabled = true;
+                    bait.SetOffPosition(new Vector3(x, 0, y));
+                }
+
+                _state = State.Split;
+            } else {
+                DuoLog.Warning($"AoE");
             }
-
-            var direction = C.Directions[count];
-
-            DuoLog.Warning($"Direction: {direction} Count: {count}");
-            const float radius = 16f;
-            var center = new Vector2(100f, 100f);
-            var angle = (int)direction;
-            var x = center.X + radius * MathF.Cos(angle * MathF.PI / 180);
-            var y = center.Y + radius * MathF.Sin(angle * MathF.PI / 180);
-
-            if (Controller.TryGetElementByName("Bait", out var bait))
-            {
-                bait.Enabled = true;
-                bait.SetOffPosition(new Vector3(x, 0, y));
-            }
-
-            _state = State.Split;
         }
     }
 
@@ -106,7 +113,7 @@ public class P2_Light_Rampant_JP : SplatoonScript
             radius = 4f,
             thicc = 6f,
             tether = true,
-            overlayText = "<< Go Here >>",
+            overlayText = GoHereText.Get(),
             overlayFScale = 3f,
             overlayVOffset = 3f
         });
