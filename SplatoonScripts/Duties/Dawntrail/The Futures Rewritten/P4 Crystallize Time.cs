@@ -67,7 +67,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private List<float> ExtraRandomness = [];
     private bool Initialized;
-    public override Metadata? Metadata => new(12, "Garume, NightmareXIV");
+    public override Metadata? Metadata => new(13, "Garume, NightmareXIV + TS");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -458,8 +458,10 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 break;
             case MechanicStage.Step6_ThirdHourglass:
                 var marker = _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker;
-                if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && (SpellInWaitingDebuffTime < 4f || !C.LateSentence || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)))
+                var isSouthReturnPos = _firstWaveDirection == Direction.South || _secondWaveDirection == Direction.South;
+                if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && SpellInWaitingDebuffTime > C.ReturnShowTime && (!C.LateSentence || isSouthReturnPos || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)))
                     CorrectCleanse();
+                    PlaceReturn(true);
                 else
                     PlaceReturn();
                 break;
@@ -658,7 +660,28 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             }
         }
 
-        Alert(C.AvoidWaveText.Get());
+        var directionTxt = "";
+        var isSouthReturnPos = _firstWaveDirection == Direction.South || _secondWaveDirection == Direction.South;
+        var marker = _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker;
+        if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && (!C.LateSentence || isSouthReturnPos || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)) && C.PrioritizeMarker){
+            
+            if (marker)
+            {
+                directionTxt = marker switch
+                {
+                    MarkerType.Attack1 => "(この後、B)",
+                    MarkerType.Attack2 => "(この後、2)",
+                    MarkerType.Attack3 => "(この後、3)",
+                    MarkerType.Attack4 => "(この後、D)",
+                    _ => "(マーカーなし)"
+                };
+            } else {
+                directionTxt = "(マーカーなし)";
+            }
+        }
+
+        var remainingTime = SpellInWaitingDebuffTime - 11.5f;
+        Alert(C.AvoidWaveText.Get() + directionTxt + $" ({remainingTime:0.0}s)");
     }
 
     private void HitDragonAndAero()
@@ -798,20 +821,22 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             HideAlert();
     }
 
-    private void PlaceReturn()
+    private void PlaceReturn(bool discreet = false)
     {
         if (C.NukemaruRewind)
-            NukemaruPlaceReturn();
+            NukemaruPlaceReturn(discreet);
         else if (C.KBIRewind)
-            KBIPlaceReturn();
+            KBIPlaceReturn(discreet);
         else
-            DefaultPlaceReturn();
+            DefaultPlaceReturn(discreet);
 
-        var remainingTime = SpellInWaitingDebuffTime;
-        Alert(C.PlaceReturnText.Get() + $" ({remainingTime:0.0}s)");
+        if (!discreet) {
+            var remainingTime = SpellInWaitingDebuffTime;
+            Alert(C.PlaceReturnText.Get() + $" ({remainingTime:0.0}s)");
+        }
     }
 
-    private void KBIPlaceReturn()
+    private void KBIPlaceReturn(bool discreet = false)
     {
         var returnDirection = (_firstWaveDirection, _secondWaveDirection) switch
         {
@@ -828,14 +853,14 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         if (Controller.TryGetElementByName(WaveStack.West + nameof(WaveStack), out var myElement))
         {
             myElement.Enabled = true;
-            myElement.tether = true;
+            myElement.tether = !discreet;
             myElement.color = GradientColor.Get(C.BaitColor1, C.BaitColor2).ToUint();
             myElement.SetOffPosition(Vector3.Zero);
             myElement.SetRefPosition(new Vector3(100, 0, 100 + (returnDirection == Direction.North ? -2 : 2)));
         }
     }
 
-    private void NukemaruPlaceReturn()
+    private void NukemaruPlaceReturn(bool discreet = false)
     {
         var returnDirection = (_firstWaveDirection, _secondWaveDirection) switch
         {
@@ -875,14 +900,14 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         if (Controller.TryGetElementByName(WaveStack.West + nameof(WaveStack), out var myElement))
         {
             myElement.Enabled = true;
-            myElement.tether = true;
+            myElement.tether = !discreet;
             myElement.color = GradientColor.Get(C.BaitColor1, C.BaitColor2).ToUint();
             myElement.SetOffPosition(Vector3.Zero);
             myElement.SetRefPosition(position);
         }
     }
 
-    private void DefaultPlaceReturn()
+    private void DefaultPlaceReturn(bool discreet = false)
     {
         var returnDirection = (_firstWaveDirection, _secondWaveDirection) switch
         {
@@ -994,7 +1019,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         if (Controller.TryGetElementByName(myStack + nameof(WaveStack), out var myElement))
         {
             myElement.Enabled = true;
-            myElement.tether = true;
+            myElement.tether = !discreet;
             myElement.color = GradientColor.Get(C.BaitColor1, C.BaitColor2).ToUint();
         }
     }
@@ -1010,7 +1035,12 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         }
 
         var remainingTime = ReturnDebuffTime;
-        Alert(C.SplitText.Get() + ($" ({remainingTime:0.0}s)"));
+        if (remainingTime >= 3.35) {
+            Alert(C.SplitText.Get() + ($" ({(remainingTime - 3.35):0.0}s)"));
+        } else {
+            Alert(C.WaitText.Get() + ($" {remainingTime:0.0}s"));
+        }
+        
     }
 
     public override void OnSettingsDraw()
@@ -1074,20 +1104,21 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 ImGuiEx.EnumCombo("攻撃3の時", ref C.WhenAttack3);
                 ImGuiEx.EnumCombo("攻撃4の時", ref C.WhenAttack4);
                 ImGui.Unindent();
+            } else {
+                ImGuiEx.EnumCombo("D(4)の白床", ref C.WestSentence);
+                ImGuiEx.EnumCombo("3の白床", ref C.SouthWestSentence);
+                ImGuiEx.EnumCombo("2の白床", ref C.SouthEastSentence);
+                ImGuiEx.EnumCombo("B(1)の白床", ref C.EastSentence);
+                ImGui.Unindent();
             }
 
-            ImGuiEx.EnumCombo("D(4)の白床", ref C.WestSentence);
-            ImGuiEx.EnumCombo("3の白床", ref C.SouthWestSentence);
-            ImGuiEx.EnumCombo("2の白床", ref C.SouthEastSentence);
-            ImGuiEx.EnumCombo("B(1)の白床", ref C.EastSentence);
-            ImGui.Unindent();
             ImGui.Separator();
             
-            ImGui.Checkbox("2または3の場合、テイカー散会時に白床を回収", ref C.LateSentence);
+            ImGui.Checkbox("リターン位置が北かつ担当位置が2または3の場合、テイカー散会時に白床を回収", ref C.LateSentence);
 
             ImGui.Checkbox("静的なスピリットテイカーの位置を強調表示", ref C.HighlightSplitPosition);
             ImGuiEx.TextWrapped(EColor.RedBright,
-                "登録済み要素セクションに移動し、「SplitPosition」要素を配置したい場所に配置してください。必要に応じてEden's Promise: Eternity undersizedに行ってプレビューを確認してください。");
+                "登録済み要素セクションに移動し、「SplitPosition」要素を配置したい場所に配置してください。必要に応じてE12S(制限解除)に行ってプレビューを確認してください。");
 
             if (C.HighlightSplitPosition)
                 if (Controller.TryGetElementByName("SplitPosition", out var element))
@@ -1111,6 +1142,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
             ImGuiEx.Text("リターンを配置");
             ImGui.Indent();
+
+            ImGui.SliderFloat("位置を強制表示する残り時間", ref C.ReturnShowTime, 0, 12);
 
             var kbiRewind = C.KBIRewind;
             var nukemaruRewind = C.NukemaruRewind;
@@ -1187,6 +1220,11 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             ImGui.Text("散開テキスト:");
             ImGui.SameLine();
             C.SplitText.ImGuiEdit(ref splitText);
+
+            var waitText = C.WaitText.Get();
+            ImGui.Text("発動待ちテキスト:");
+            ImGui.SameLine();
+            C.WaitText.ImGuiEdit(ref waitText);
 
             var hitDragonText = C.HitDragonText.Get();
             ImGui.Text("竜当たりテキスト:");
@@ -1577,6 +1615,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         public MoveType SouthEastSentence = MoveType.BlueHoly;
         public MoveType SouthWestSentence = MoveType.BlueWater;
         public InternationalString SplitText = new() { En = "Split", Jp = "散開！" };
+        public InternationalString WaitText = new() { En = "Wait", Jp = "リターン発動まで" };
         public uint TankMitigationAction;
         public bool UseKbiAuto;
         public bool UseMitigation;
@@ -1588,5 +1627,6 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         public Direction WhenAttack2 = Direction.SouthEast;
         public Direction WhenAttack3 = Direction.SouthWest;
         public Direction WhenAttack4 = Direction.West;
+        public float ReturnShowTime = 4.0f;
     }
 }

@@ -88,9 +88,13 @@ public class P5_Paradise_Regained : SplatoonScript
     private State _state = State.None;
 
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(4, "Garume");
+    public override Metadata? Metadata => new(5, "Garume + TS");
 
     public Config C => Controller.GetConfig<Config>();
+
+    public InternationalString GoHereText = new() { En = "<< Go Here >>", Jp = "<< ここに移動 >>" };
+    public InternationalString NextText = new() { En = "<< Next >>", Jp = "<< 次 >>" };
+    public InternationalString YourTowerText = new() { En = "Your Tower", Jp = "担当の塔" };
 
     public override void OnSetup()
     {
@@ -100,7 +104,7 @@ public class P5_Paradise_Regained : SplatoonScript
             thicc = 6f,
             overlayFScale = 3f,
             overlayVOffset = 3f,
-            overlayText = "<< Go Here >>"
+            overlayText = GoHereText.Get()
         });
         Controller.TryRegisterElement("PredictTower", new Element(0)
         {
@@ -108,7 +112,7 @@ public class P5_Paradise_Regained : SplatoonScript
             thicc = 6f,
             overlayFScale = 3f,
             overlayVOffset = 3f,
-            overlayText = "Your Tower",
+            overlayText = YourTowerText.Get(),
             color = EColor.RedBright.ToUint()
         });
 
@@ -118,7 +122,7 @@ public class P5_Paradise_Regained : SplatoonScript
             thicc = 6f,
             overlayFScale = 3f,
             overlayVOffset = 3f,
-            overlayText = "<< Go Here >>"
+            overlayText = GoHereText.Get()
         });
 
         Controller.TryRegisterElement("PredictBait", new Element(0)
@@ -127,7 +131,7 @@ public class P5_Paradise_Regained : SplatoonScript
             thicc = 6f,
             overlayFScale = 3f,
             overlayVOffset = 3f,
-            overlayText = "<< Next >>"
+            overlayText = NextText.Get()
         });
 
         Controller.TryRegisterElement("TankAOE", new Element(0)
@@ -375,6 +379,8 @@ public class P5_Paradise_Regained : SplatoonScript
                     case TowerType.SecondSafe:
                     {
                         var isLeft = _firstAttack == AttackType.Light;
+                        if (_towers.TryGetFirst(x => x.IsLeft == !isLeft, out var tower))
+                            SetTowerPosition(tower.Position.ToVector3(0));
                         if (_towers.TryGetFirst(x => x.IsLeft == isLeft, out var tower))
                             SetPredictTowerPosition(tower.Position.ToVector3(0));
 

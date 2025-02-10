@@ -30,7 +30,7 @@ public class P4_AutoTargetSwitcher : SplatoonScript
     private float _lastMinPercentage;
     private int _mornAfahCount;
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(8, "Garume");
+    public override Metadata? Metadata => new(9, "Garume + TS");
 
     private Config C => Controller.GetConfig<Config>();
 
@@ -266,10 +266,10 @@ public class P4_AutoTargetSwitcher : SplatoonScript
         public float AcceptablePercentage = 3f;
         public bool DebugMode;
 
-        public int Interval = 300;
+        public int Interval = 500;
         public float LowHpPercentage = 1f;
         public bool ShouldDisableWhenLowHp;
-        public bool DisableRandomTarget = false;
+        public bool DisableRandomTarget = true;
         public bool TimingMode;
         public bool LimitDistance = false;
     }

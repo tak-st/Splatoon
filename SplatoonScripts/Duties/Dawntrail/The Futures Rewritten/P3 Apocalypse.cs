@@ -24,7 +24,7 @@ namespace SplatoonScriptsOfficial.Duties.Dawntrail.The_Futures_Rewritten;
 public unsafe class P3_Apocalypse : SplatoonScript
 {
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(11, "Errer, NightmareXIV");
+    public override Metadata? Metadata => new(12, "Errer, NightmareXIV + TS");
     public long StartTime = 0;
     private bool IsAdjust = false;
     private bool IsClockwise = true;

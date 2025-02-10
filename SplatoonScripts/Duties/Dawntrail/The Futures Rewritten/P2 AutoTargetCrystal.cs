@@ -15,7 +15,7 @@ namespace SplatoonScriptsOfficial.Duties.Dawntrail.The_Futures_Rewritten;
 public class P2_AutoTargetCrystal : SplatoonScript
 {
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(1, "Garume");
+    public override Metadata? Metadata => new(2, "Garume + TS");
 
     private Config C => Controller.GetConfig<Config>();
 
@@ -48,7 +48,7 @@ public class P2_AutoTargetCrystal : SplatoonScript
 
     private class Config : IEzConfig
     {
-        public bool LimitDistance = false;
-        public float distance = 20f;
+        public bool LimitDistance = true;
+        public float distance = 25f;
     }
 }

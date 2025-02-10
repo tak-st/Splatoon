@@ -43,7 +43,7 @@ public class P2_Light_Rampant_JP : SplatoonScript
 
     private State _state = State.None;
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(2, "Garume");
+    public override Metadata? Metadata => new(3, "Garume + TS");
 
     public Config C => Controller.GetConfig<Config>();
 
@@ -70,33 +70,35 @@ public class P2_Light_Rampant_JP : SplatoonScript
         {
             if (target.GetObject() is IPlayerCharacter player) _aoeTargets.Add(player.Name.ToString());
 
-            if (!_aoeTargets.Any(x => x == Player.Name)) {
-                var count = 0;
-                foreach (var aoeTarget in _aoeTargets)
-                {
-                    if (C.PlayersCount == 1 && C.PriorityData1.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
-                    if (C.PlayersCount == 2 && C.PriorityData2.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
-                    if (C.PlayersCount == 3 && C.PriorityData3.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
+            if (_aoeTargets.Length > 1) {
+                if (!_aoeTargets.Any(x => x.Name == Player.Name)) {
+                    var count = 0;
+                    foreach (var aoeTarget in _aoeTargets)
+                    {
+                        if (C.PlayersCount == 1 && C.PriorityData1.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
+                        if (C.PlayersCount == 2 && C.PriorityData2.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
+                        if (C.PlayersCount == 3 && C.PriorityData3.GetPlayer(x => x.Name == aoeTarget) is not null) count++;
+                    }
+
+                    var direction = C.Directions[count];
+
+                    DuoLog.Warning($"行先: {direction} 数: {count}");
+                    const float radius = 16f;
+                    var center = new Vector2(100f, 100f);
+                    var angle = (int)direction;
+                    var x = center.X + radius * MathF.Cos(angle * MathF.PI / 180);
+                    var y = center.Y + radius * MathF.Sin(angle * MathF.PI / 180);
+
+                    if (Controller.TryGetElementByName("Bait", out var bait))
+                    {
+                        bait.Enabled = true;
+                        bait.SetOffPosition(new Vector3(x, 0, y));
+                    }
+
+                    _state = State.Split;
+                } else {
+                    DuoLog.Warning($"AoE");
                 }
-
-                var direction = C.Directions[count];
-
-                DuoLog.Warning($"Direction: {direction} Count: {count}");
-                const float radius = 16f;
-                var center = new Vector2(100f, 100f);
-                var angle = (int)direction;
-                var x = center.X + radius * MathF.Cos(angle * MathF.PI / 180);
-                var y = center.Y + radius * MathF.Sin(angle * MathF.PI / 180);
-
-                if (Controller.TryGetElementByName("Bait", out var bait))
-                {
-                    bait.Enabled = true;
-                    bait.SetOffPosition(new Vector3(x, 0, y));
-                }
-
-                _state = State.Split;
-            } else {
-                DuoLog.Warning($"AoE");
             }
         }
     }
