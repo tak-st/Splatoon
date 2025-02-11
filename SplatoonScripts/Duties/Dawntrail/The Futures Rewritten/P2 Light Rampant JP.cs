@@ -70,8 +70,8 @@ public class P2_Light_Rampant_JP : SplatoonScript
         {
             if (target.GetObject() is IPlayerCharacter player) _aoeTargets.Add(player.Name.ToString());
 
-            if (_aoeTargets.Length > 1) {
-                if (!_aoeTargets.Any(x => x.Name == Player.Name)) {
+            if (_aoeTargets.Count() > 1) {
+                if (!_aoeTargets.Any(x => x == Player.Name)) {
                     var count = 0;
                     foreach (var aoeTarget in _aoeTargets)
                     {

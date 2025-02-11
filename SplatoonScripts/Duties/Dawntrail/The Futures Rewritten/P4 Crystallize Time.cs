@@ -460,8 +460,11 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 var marker = _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker;
                 var isSouthReturnPos = _firstWaveDirection == Direction.South || _secondWaveDirection == Direction.South;
                 if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && SpellInWaitingDebuffTime > C.ReturnShowTime && (!C.LateSentence || isSouthReturnPos || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)))
+                {
+
                     CorrectCleanse();
                     PlaceReturn(true);
+                }
                 else
                     PlaceReturn();
                 break;
@@ -665,7 +668,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         var marker = _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker;
         if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && (!C.LateSentence || isSouthReturnPos || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)) && C.PrioritizeMarker){
             
-            if (marker)
+            if (marker != null)
             {
                 directionTxt = marker switch
                 {

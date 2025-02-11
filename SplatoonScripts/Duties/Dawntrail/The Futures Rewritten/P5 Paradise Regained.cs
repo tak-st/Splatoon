@@ -381,8 +381,8 @@ public class P5_Paradise_Regained : SplatoonScript
                         var isLeft = _firstAttack == AttackType.Light;
                         if (_towers.TryGetFirst(x => x.IsLeft == !isLeft, out var tower))
                             SetTowerPosition(tower.Position.ToVector3(0));
-                        if (_towers.TryGetFirst(x => x.IsLeft == isLeft, out var tower))
-                            SetPredictTowerPosition(tower.Position.ToVector3(0));
+                        if (_towers.TryGetFirst(x => x.IsLeft == isLeft, out var tower2))
+                            SetPredictTowerPosition(tower2.Position.ToVector3(0));
 
                         break;
                     }
