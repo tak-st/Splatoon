@@ -683,7 +683,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             }
         }
 
-        var remainingTime = SpellInWaitingDebuffTime - 11.5f;
+        var remainingTime = SpellInWaitingDebuffTime;
         Alert(C.AvoidWaveText.Get() + directionTxt + $" ({remainingTime:0.0}s)");
     }
 
