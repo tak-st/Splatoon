@@ -36,8 +36,10 @@ public class P1_Fall_of_Faith : SplatoonScript
     private State _state = State.None;
 
     private int _tetherCount = 1;
+    private Debuff firstDebuff = Debuff.None;
+    private Debuff SecondDebuff = Debuff.None;
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(2, "Garume");
+    public override Metadata? Metadata => new(3, "Garume + TS");
     private Config C => Controller.GetConfig<Config>();
 
     public override void OnStartingCast(uint source, uint castId)
@@ -83,10 +85,10 @@ public class P1_Fall_of_Faith : SplatoonScript
     {
         return direction switch
         {
-            Direction.North => new Vector2(100, 85),
-            Direction.East => new Vector2(115, 100),
-            Direction.South => new Vector2(100, 115),
-            Direction.West => new Vector2(85, 100),
+            Direction.North => new Vector2(100, 95),
+            Direction.East => new Vector2(105, 100),
+            Direction.South => new Vector2(100, 105),
+            Direction.West => new Vector2(95, 100),
             _ => Vector2.Zero
         };
     }
@@ -96,6 +98,8 @@ public class P1_Fall_of_Faith : SplatoonScript
         _state = State.None;
         _partyDatas = new Dictionary<string, PlayerData>();
         _tetherCount = 1;
+        firstDebuff = Debuff.None;
+        secondDebuff = Debuff.None;
     }
 
     public override void OnTetherCreate(uint source, uint target, uint data2, uint data3, uint data5)
@@ -112,6 +116,12 @@ public class P1_Fall_of_Faith : SplatoonScript
             287 => Debuff.Blue,
             _ => Debuff.None
         };
+        if (_tetherCount == 1) {
+            firstDebuff = debuff;
+        }
+        if (_tetherCount == 2) {
+            secondDebuff = debuff;
+        }
         _partyDatas[name] = _tetherCount switch
         {
             1 => new PlayerData(debuff, C.Tether1Direction, 1),
@@ -130,10 +140,10 @@ public class P1_Fall_of_Faith : SplatoonScript
                 DuoLog.Warning("[P1 Fall of Faith] NoTether is null");
                 return;
             }
-            _partyDatas[noTether[0].Name] = new PlayerData(Debuff.None, C.NoTether12Direction, 0);
-            _partyDatas[noTether[1].Name] = new PlayerData(Debuff.None, C.NoTether12Direction, 0);
-            _partyDatas[noTether[2].Name] = new PlayerData(Debuff.None, C.NoTether34Direction, 0);
-            _partyDatas[noTether[3].Name] = new PlayerData(Debuff.None, C.NoTether34Direction, 0);
+            _partyDatas[noTether[0].Name] = new PlayerData(Debuff.None, C.NoTether12Direction, 1);
+            _partyDatas[noTether[1].Name] = new PlayerData(Debuff.None, C.NoTether12Direction, 2);
+            _partyDatas[noTether[2].Name] = new PlayerData(Debuff.None, C.NoTether34Direction, 3);
+            _partyDatas[noTether[3].Name] = new PlayerData(Debuff.None, C.NoTether34Direction, 4);
         }
         
         ApplyElement();
@@ -144,7 +154,54 @@ public class P1_Fall_of_Faith : SplatoonScript
         if (_partyDatas.TryGetValue(Player.Name, out var value) && Controller.TryGetElementByName("Bait", out var bait))
         {
             bait.Enabled = true;
-            bait.SetOffPosition(GetPosition(value.Direction).ToVector3());
+            var _fixed = new Vector2(0f, 0f);
+            if (
+                C.Tether1Direction == C.Tether3Direction && C.Tether3Direction == C.NoTether12Direction && C.NoTether12Direction == Direction.West &&
+                C.Tether2Direction == C.Tether4Direction && C.Tether4Direction == C.NoTether34Direction && C.NoTether34Direction == Direction.East
+            ) {
+                var side = 0;
+                if (x.Value.Debuff != Debuff.None) {
+                    _fixed = value.Count switch
+                    {
+                        1 => new Vector2(0f, 0f),
+                        2 => new Vector2(0f, 0f),
+                        3 => new Vector2(-2f, 0f),
+                        4 => new Vector2(2f, 0f),
+                        _ => new Vector2(0f, 0f)
+                    };
+                    side = value.Count switch
+                    {
+                        1 => 0,
+                        2 => 0,
+                        3 => 1,
+                        4 => 2,
+                        _ => 0
+                    };
+                } else {
+                    _fixed = value.Count switch
+                    {
+                        1 => new Vector2(0f, -2f),
+                        2 => new Vector2(0f, 2f),
+                        3 => new Vector2(0f, 2f),
+                        4 => new Vector2(0f, -2f),
+                        _ => new Vector2(0f, 0f)
+                    };
+                    side = value.Count switch
+                    {
+                        1 => 1,
+                        2 => 1,
+                        3 => 2,
+                        4 => 2,
+                        _ => 0
+                    };
+                }
+                if (side == 1 && firstDebuff == Debuff.Red) {
+                    _fixed = new Vector2(-2f, 0f);
+                } else if (side == 2 && secondDebuff == Debuff.Red) {
+                    _fixed = new Vector2(2f, 0f);
+                }
+            }
+            bait.SetOffPosition((GetPosition(value.Direction) + _fixed).ToVector3());
         }
 
         var index = 0;
@@ -152,8 +209,8 @@ public class P1_Fall_of_Faith : SplatoonScript
         {
             var text = data.Value.Debuff switch
             {
-                Debuff.Red => C.RedTetherText.Get() + data.Value.Count,
-                Debuff.Blue => C.BlueTetherText.Get() + data.Value.Count,
+                Debuff.Red => data.Value.Count + C.RedTetherText.Get(),
+                Debuff.Blue => data.Value.Count + C.BlueTetherText.Get(),
                 _ => string.Empty
             };
 
@@ -177,6 +234,7 @@ public class P1_Fall_of_Faith : SplatoonScript
                 break;
             case State.Start or State.Split:
             {
+                ApplyElement();
                 if (Controller.TryGetElementByName("Bait", out var bait))
                     bait.color = GradientColor.Get(C.BaitColor1, C.BaitColor2).ToUint();
                 break;
@@ -248,16 +306,16 @@ public class P1_Fall_of_Faith : SplatoonScript
 
         public InternationalString BlueTetherText = new() { Jp = "雷 散開" };
 
-        public Direction NoTether12Direction = Direction.North;
-        public Direction NoTether34Direction = Direction.South;
+        public Direction NoTether12Direction = Direction.West;
+        public Direction NoTether34Direction = Direction.East;
 
         public PriorityData PriorityData = new();
 
         public InternationalString RedTetherText = new() { Jp = "炎 ペア割" };
 
-        public Direction Tether1Direction = Direction.North;
-        public Direction Tether2Direction = Direction.South;
-        public Direction Tether3Direction = Direction.North;
-        public Direction Tether4Direction = Direction.South;
+        public Direction Tether1Direction = Direction.West;
+        public Direction Tether2Direction = Direction.East;
+        public Direction Tether3Direction = Direction.West;
+        public Direction Tether4Direction = Direction.East;
     }
 }
