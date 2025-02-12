@@ -88,7 +88,7 @@ public class P5_Paradise_Regained : SplatoonScript
     private State _state = State.None;
 
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(6, "Garume + TS");
+    public override Metadata? Metadata => new(7, "Garume + TS");
 
     public Config C => Controller.GetConfig<Config>();
 
@@ -261,7 +261,7 @@ public class P5_Paradise_Regained : SplatoonScript
                         element.Enabled = true;
                         element.overlayText = C.NearText.Get();
                     }
-                } else {
+                } else if (_firstAttack == AttackType.Dark) {
                     if (Controller.TryGetElementByName("Text", out var element))
                     {
                         element.Enabled = true;
@@ -314,7 +314,7 @@ public class P5_Paradise_Regained : SplatoonScript
                         element.Enabled = true;
                         element.overlayText = C.RightText.Get() + "・" + C.FarText.Get();
                     }
-                } else {
+                } else if (_firstAttack == AttackType.Dark) {
                     if (Controller.TryGetElementByName("Text", out var element))
                     {
                         element.Enabled = true;
@@ -368,7 +368,7 @@ public class P5_Paradise_Regained : SplatoonScript
                         element.Enabled = true;
                         element.overlayText = C.RightText.Get() + "・" + C.NearText.Get();
                     }
-                } else {
+                } else if (_firstAttack == AttackType.Dark) {
                     if (Controller.TryGetElementByName("Text", out var element))
                     {
                         element.Enabled = true;
@@ -474,7 +474,7 @@ public class P5_Paradise_Regained : SplatoonScript
                         element.Enabled = true;
                         element.overlayText = C.NearText.Get();
                     }
-                } else {
+                } else if (_firstAttack == AttackType.Dark) {
                     if (Controller.TryGetElementByName("Text", out var element))
                     {
                         element.Enabled = true;
@@ -493,7 +493,7 @@ public class P5_Paradise_Regained : SplatoonScript
                         element.Enabled = true;
                         element.overlayText = C.FarText.Get();
                     }
-                } else {
+                } else if (_firstAttack == AttackType.Dark) {
                     if (Controller.TryGetElementByName("Text", out var element))
                     {
                         element.Enabled = true;
@@ -512,7 +512,7 @@ public class P5_Paradise_Regained : SplatoonScript
                         element.Enabled = true;
                         element.overlayText = C.FarText.Get();
                     }
-                } else {
+                } else if (_firstAttack == AttackType.Dark) {
                     if (Controller.TryGetElementByName("Text", out var element))
                     {
                         element.Enabled = true;
