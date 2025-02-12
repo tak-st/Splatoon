@@ -762,6 +762,7 @@ public class P5_Paradise_Regained : SplatoonScript
         ImGui.Text("RightText:");
         ImGui.SameLine();
         C.RightText.ImGuiEdit(ref rightText);
+        var farText = C.FarText.Get();
         ImGui.Text("FarText:");
         ImGui.SameLine();
         C.FarText.ImGuiEdit(ref farText);

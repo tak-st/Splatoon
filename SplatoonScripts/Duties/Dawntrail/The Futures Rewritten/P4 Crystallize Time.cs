@@ -830,9 +830,9 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             if (C.ShowOtherCleanse && C.PrioritizeMarker) {
                 List<string> items = Enum.GetValues<MoveType>()
                                         .Select(e => e.ToString())
-                                        .Where(name => name.StartsWith("Blue") && name != player)
+                                        .Where(name => name.StartsWith("Blue") && name != player.ToString())
                                         .ToList();
-                if (items.count() > 0 && direction != C.WhenAttack1) {
+                if (items.Count() > 0 && direction != C.WhenAttack1) {
                     var CleansePos = C.WhenAttack1 switch
                     {
                         Direction.West => cleanses[0].Position.ToVector2(),
@@ -841,20 +841,20 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         Direction.East => cleanses[3].Position.ToVector2(),
                         _ => new Vector2(100, 100)
                     };
-                    if (Controller.TryGetElementByName(items[0], out var element))
+                    if (Controller.TryGetElementByName(items[0], out var element1))
                     {
-                        element.radius = 2f;
-                        element.SetOffPosition(cleansePos.ToVector3(0));
-                        element.overlayText = "<< 1 >>";
-                        element.overlayFScale = 2f;
-                        element.overlayVOffset = 2f;
-                        element.tether = false;
-                        element.color = EColor.Red.ToUint();
+                        element1.radius = 2f;
+                        element1.SetOffPosition(CleansePos.ToVector3(0));
+                        element1.overlayText = "<< 1 >>";
+                        element1.overlayFScale = 2f;
+                        element1.overlayVOffset = 2f;
+                        element1.tether = false;
+                        element1.color = EColor.Red.ToUint();
                     }
                     items.RemoveAt(0);
                 }
 
-                if (items.count() > 0 && direction != C.WhenAttack2) {
+                if (items.Count() > 0 && direction != C.WhenAttack2) {
                     var CleansePos = C.WhenAttack2 switch
                     {
                         Direction.West => cleanses[0].Position.ToVector2(),
@@ -863,20 +863,20 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         Direction.East => cleanses[3].Position.ToVector2(),
                         _ => new Vector2(100, 100)
                     };
-                    if (Controller.TryGetElementByName(items[0], out var element))
+                    if (Controller.TryGetElementByName(items[0], out var element2))
                     {
-                        element.radius = 2f;
-                        element.SetOffPosition(cleansePos.ToVector3(0));
-                        element.overlayText = "<< 2 >>";
-                        element.overlayFScale = 2f;
-                        element.overlayVOffset = 2f;
-                        element.tether = false;
-                        element.color = EColor.Red.ToUint();
+                        element2.radius = 2f;
+                        element2.SetOffPosition(CleansePos.ToVector3(0));
+                        element2.overlayText = "<< 2 >>";
+                        element2.overlayFScale = 2f;
+                        element2.overlayVOffset = 2f;
+                        element2.tether = false;
+                        element2.color = EColor.Red.ToUint();
                     }
                     items.RemoveAt(0);
                 }
 
-                if (items.count() > 0 && direction != C.WhenAttack3) {
+                if (items.Count() > 0 && direction != C.WhenAttack3) {
                     var CleansePos = C.WhenAttack3 switch
                     {
                         Direction.West => cleanses[0].Position.ToVector2(),
@@ -885,21 +885,21 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         Direction.East => cleanses[3].Position.ToVector2(),
                         _ => new Vector2(100, 100)
                     };
-                    if (Controller.TryGetElementByName(items[0], out var element))
+                    if (Controller.TryGetElementByName(items[0], out var element3))
                     {
-                        element.radius = 2f;
-                        element.SetOffPosition(cleansePos.ToVector3(0));
-                        element.overlayText = "<< 3 >>";
-                        element.overlayFScale = 2f;
-                        element.overlayVOffset = 2f;
-                        element.tether = false;
-                        element.color = EColor.Red.ToUint();
+                        element3.radius = 2f;
+                        element3.SetOffPosition(CleansePos.ToVector3(0));
+                        element3.overlayText = "<< 3 >>";
+                        element3.overlayFScale = 2f;
+                        element3.overlayVOffset = 2f;
+                        element3.tether = false;
+                        element3.color = EColor.Red.ToUint();
                     }
                     items.RemoveAt(0);
                 }
 
-                if (items.count() > 0 && direction != C.WhenAttack4) {
-                    var cleansePos = C.WhenAttack4 switch
+                if (items.Count() > 0 && direction != C.WhenAttack4) {
+                    var CleansePos = C.WhenAttack4 switch
                     {
                         Direction.West => cleanses[0].Position.ToVector2(),
                         Direction.SouthWest => cleanses[1].Position.ToVector2(),
@@ -907,15 +907,15 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         Direction.East => cleanses[3].Position.ToVector2(),
                         _ => new Vector2(100, 100)
                     };
-                    if (Controller.TryGetElementByName(items[0], out var element))
+                    if (Controller.TryGetElementByName(items[0], out var element4))
                     {
-                        element.radius = 2f;
-                        element.SetOffPosition(cleansePos.ToVector3(0));
-                        element.overlayText = "<< 4 >>";
-                        element.overlayFScale = 2f;
-                        element.overlayVOffset = 2f;
-                        element.tether = false;
-                        element.color = EColor.Red.ToUint();
+                        element4.radius = 2f;
+                        element4.SetOffPosition(CleansePos.ToVector3(0));
+                        element4.overlayText = "<< 4 >>";
+                        element4.overlayFScale = 2f;
+                        element4.overlayVOffset = 2f;
+                        element4.tether = false;
+                        element4.color = EColor.Red.ToUint();
                     }
                     items.RemoveAt(0);
                 }
@@ -1385,12 +1385,12 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             ImGui.SameLine();
             C.PlaceReturnText.ImGuiEdit(ref placeReturnText);
 
-            var placeReturnText = C.CleansePosText.Get();
+            var cleansePosText = C.CleansePosText.Get();
             ImGui.Text("白床表示テキスト:");
             ImGui.SameLine();
             C.PlaceReturnText.ImGuiEdit(ref cleansePosText);
 
-            var placeReturnText = C.PlaceReturnPosText.Get();
+            var placeReturnPosText = C.PlaceReturnPosText.Get();
             ImGui.Text("リターン位置表示テキスト:");
             ImGui.SameLine();
             C.PlaceReturnText.ImGuiEdit(ref placeReturnPosText);

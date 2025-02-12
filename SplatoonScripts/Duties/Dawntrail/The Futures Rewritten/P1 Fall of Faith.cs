@@ -37,7 +37,7 @@ public class P1_Fall_of_Faith : SplatoonScript
 
     private int _tetherCount = 1;
     private Debuff firstDebuff = Debuff.None;
-    private Debuff SecondDebuff = Debuff.None;
+    private Debuff secondDebuff = Debuff.None;
     public override HashSet<uint>? ValidTerritories => [1238];
     public override Metadata? Metadata => new(3, "Garume + TS");
     private Config C => Controller.GetConfig<Config>();
@@ -160,7 +160,7 @@ public class P1_Fall_of_Faith : SplatoonScript
                 C.Tether2Direction == C.Tether4Direction && C.Tether4Direction == C.NoTether34Direction && C.NoTether34Direction == Direction.East
             ) {
                 var side = 0;
-                if (x.Value.Debuff != Debuff.None) {
+                if (value.Debuff != Debuff.None) {
                     _fixed = value.Count switch
                     {
                         1 => new Vector2(0f, 0f),
