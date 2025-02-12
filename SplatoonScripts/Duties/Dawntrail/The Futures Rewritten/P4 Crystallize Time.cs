@@ -67,7 +67,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private List<float> ExtraRandomness = [];
     private bool Initialized;
-    public override Metadata? Metadata => new(13, "Garume, NightmareXIV + TS");
+    public override Metadata? Metadata => new(14, "Garume, NightmareXIV + TS");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -306,14 +306,16 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             Controller.RegisterElement(move.ToString(), new Element(0)
             {
                 radius = 1f,
-                thicc = 6f
+                thicc = 6f,
+                overlayText = ""
             });
 
         foreach (var stack in Enum.GetValues<WaveStack>())
             Controller.RegisterElement(stack + nameof(WaveStack), new Element(0)
             {
                 radius = 0.5f,
-                thicc = 6f
+                thicc = 6f,
+                overlayText = ""
             });
 
         Controller.RegisterElement("Alert", new Element(1)
@@ -419,6 +421,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
                     element.Enabled = C.ShowOther;
                     element.color = EColor.Red.ToUint();
+                    element.overlayText = "";
+                    element.tether = false;
 
                     if (myMove == move.ToString())
                     {
@@ -572,6 +576,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             position = SwapXIfNecessary(position);
             if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
             {
+                element.overlayText = "";
                 element.radius = 0.5f;
                 element.SetOffPosition(position.ToVector3(0));
             }
@@ -598,6 +603,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             position = SwapXIfNecessary(position);
             if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
             {
+                element.overlayText = "";
                 element.radius = 0.5f;
                 element.SetOffPosition(position.ToVector3(0));
             }
@@ -632,6 +638,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             position = SwapXIfNecessary(position);
             if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
             {
+                element.overlayText = "";
                 element.radius = 1f;
                 element.SetOffPosition(position.ToVector3(0));
             }
@@ -658,6 +665,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             position = SwapXIfNecessary(position);
             if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
             {
+                element.overlayText = "";
                 element.radius = 1f;
                 element.SetOffPosition(position.ToVector3(0));
             }
@@ -731,6 +739,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 position = SwapXIfNecessary(position.Value);
                 if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
                 {
+                    element.overlayText = "";
                     element.radius = 2f;
                     element.SetOffPosition(position.Value.ToVector3(0));
                 }
@@ -812,6 +821,104 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             {
                 element.radius = 2f;
                 element.SetOffPosition(position.ToVector3(0));
+                element.overlayText = C.CleansePosText.Get();
+                element.overlayFScale = 2f;
+                element.overlayVOffset = 2f;
+                element.tether = true;
+            }
+
+            if (C.ShowOtherCleanse && C.PrioritizeMarker) {
+                List<string> items = Enum.GetValues<MoveType>()
+                                        .Select(e => e.ToString())
+                                        .Where(name => name.StartsWith("Blue") && name != player)
+                                        .ToList();
+                if (items.count() > 0 && direction != C.WhenAttack1) {
+                    var CleansePos = C.WhenAttack1 switch
+                    {
+                        Direction.West => cleanses[0].Position.ToVector2(),
+                        Direction.SouthWest => cleanses[1].Position.ToVector2(),
+                        Direction.SouthEast => cleanses[2].Position.ToVector2(),
+                        Direction.East => cleanses[3].Position.ToVector2(),
+                        _ => new Vector2(100, 100)
+                    };
+                    if (Controller.TryGetElementByName(items[0], out var element))
+                    {
+                        element.radius = 2f;
+                        element.SetOffPosition(cleansePos.ToVector3(0));
+                        element.overlayText = "<< 1 >>";
+                        element.overlayFScale = 2f;
+                        element.overlayVOffset = 2f;
+                        element.tether = false;
+                        element.color = EColor.Red.ToUint();
+                    }
+                    items.RemoveAt(0);
+                }
+
+                if (items.count() > 0 && direction != C.WhenAttack2) {
+                    var CleansePos = C.WhenAttack2 switch
+                    {
+                        Direction.West => cleanses[0].Position.ToVector2(),
+                        Direction.SouthWest => cleanses[1].Position.ToVector2(),
+                        Direction.SouthEast => cleanses[2].Position.ToVector2(),
+                        Direction.East => cleanses[3].Position.ToVector2(),
+                        _ => new Vector2(100, 100)
+                    };
+                    if (Controller.TryGetElementByName(items[0], out var element))
+                    {
+                        element.radius = 2f;
+                        element.SetOffPosition(cleansePos.ToVector3(0));
+                        element.overlayText = "<< 2 >>";
+                        element.overlayFScale = 2f;
+                        element.overlayVOffset = 2f;
+                        element.tether = false;
+                        element.color = EColor.Red.ToUint();
+                    }
+                    items.RemoveAt(0);
+                }
+
+                if (items.count() > 0 && direction != C.WhenAttack3) {
+                    var CleansePos = C.WhenAttack3 switch
+                    {
+                        Direction.West => cleanses[0].Position.ToVector2(),
+                        Direction.SouthWest => cleanses[1].Position.ToVector2(),
+                        Direction.SouthEast => cleanses[2].Position.ToVector2(),
+                        Direction.East => cleanses[3].Position.ToVector2(),
+                        _ => new Vector2(100, 100)
+                    };
+                    if (Controller.TryGetElementByName(items[0], out var element))
+                    {
+                        element.radius = 2f;
+                        element.SetOffPosition(cleansePos.ToVector3(0));
+                        element.overlayText = "<< 3 >>";
+                        element.overlayFScale = 2f;
+                        element.overlayVOffset = 2f;
+                        element.tether = false;
+                        element.color = EColor.Red.ToUint();
+                    }
+                    items.RemoveAt(0);
+                }
+
+                if (items.count() > 0 && direction != C.WhenAttack4) {
+                    var cleansePos = C.WhenAttack4 switch
+                    {
+                        Direction.West => cleanses[0].Position.ToVector2(),
+                        Direction.SouthWest => cleanses[1].Position.ToVector2(),
+                        Direction.SouthEast => cleanses[2].Position.ToVector2(),
+                        Direction.East => cleanses[3].Position.ToVector2(),
+                        _ => new Vector2(100, 100)
+                    };
+                    if (Controller.TryGetElementByName(items[0], out var element))
+                    {
+                        element.radius = 2f;
+                        element.SetOffPosition(cleansePos.ToVector3(0));
+                        element.overlayText = "<< 4 >>";
+                        element.overlayFScale = 2f;
+                        element.overlayVOffset = 2f;
+                        element.tether = false;
+                        element.color = EColor.Red.ToUint();
+                    }
+                    items.RemoveAt(0);
+                }
             }
         }
 
@@ -834,8 +941,26 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             DefaultPlaceReturn(discreet);
 
         if (!discreet) {
+            var directionTxt = "";
+            if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && C.PrioritizeMarker){
+                var marker = _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker;
+                if (marker != null)
+                {
+                    directionTxt = marker switch
+                    {
+                        MarkerType.Attack1 => "(この後、B)",
+                        MarkerType.Attack2 => "(この後、2)",
+                        MarkerType.Attack3 => "(この後、3)",
+                        MarkerType.Attack4 => "(この後、D)",
+                        _ => "(マーカーなし)"
+                    };
+                } else {
+                    directionTxt = "(マーカーなし)";
+                }
+            }
+
             var remainingTime = SpellInWaitingDebuffTime;
-            Alert(C.PlaceReturnText.Get() + $" ({remainingTime:0.0}s)");
+            Alert(C.PlaceReturnText.Get() + directionTxt + $" ({remainingTime:0.0}s)");
         }
     }
 
@@ -860,6 +985,9 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             myElement.color = GradientColor.Get(C.BaitColor1, C.BaitColor2).ToUint();
             myElement.SetOffPosition(Vector3.Zero);
             myElement.SetRefPosition(new Vector3(100, 0, 100 + (returnDirection == Direction.North ? -2 : 2)));
+            myElement.overlayText = C.PlaceReturnPosText.Get();
+            myElement.overlayFScale = 2f;
+            myElement.overlayVOffset = 2f;
         }
     }
 
@@ -907,6 +1035,9 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             myElement.color = GradientColor.Get(C.BaitColor1, C.BaitColor2).ToUint();
             myElement.SetOffPosition(Vector3.Zero);
             myElement.SetRefPosition(position);
+            myElement.overlayText = C.PlaceReturnPosText.Get();
+            myElement.overlayFScale = 2f;
+            myElement.overlayVOffset = 2f;
         }
     }
 
@@ -1009,6 +1140,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             {
                 element.Enabled = C.ShowOtherReturn;
                 element.radius = stack is WaveStack.WestTank or WaveStack.EastTank ? 0.5f : 1.2f;
+                element.overlayText = "";
                 element.SetOffPosition(stack switch
                 {
                     WaveStack.WestTank => westTankPosition.ToVector3(0),
@@ -1024,6 +1156,9 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             myElement.Enabled = true;
             myElement.tether = !discreet;
             myElement.color = GradientColor.Get(C.BaitColor1, C.BaitColor2).ToUint();
+            myElement.overlayText = C.PlaceReturnPosText.Get();
+            myElement.overlayFScale = 2f;
+            myElement.overlayVOffset = 2f;
         }
     }
 
@@ -1035,6 +1170,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             myElement.Enabled = true;
             myElement.tether = true;
             myElement.color = GradientColor.Get(C.BaitColor1, C.BaitColor2).ToUint();
+            myElement.overlayText = "";
         }
 
         var remainingTime = ReturnDebuffTime;
@@ -1249,6 +1385,16 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             ImGui.SameLine();
             C.PlaceReturnText.ImGuiEdit(ref placeReturnText);
 
+            var placeReturnText = C.CleansePosText.Get();
+            ImGui.Text("白床表示テキスト:");
+            ImGui.SameLine();
+            C.PlaceReturnText.ImGuiEdit(ref cleansePosText);
+
+            var placeReturnText = C.PlaceReturnPosText.Get();
+            ImGui.Text("リターン位置表示テキスト:");
+            ImGui.SameLine();
+            C.PlaceReturnText.ImGuiEdit(ref placeReturnPosText);
+
             ImGui.Unindent();
 
             ImGui.Separator();
@@ -1295,18 +1441,21 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
             ImGui.Checkbox("他人を表示（動作）", ref C.ShowOther);
             ImGui.Checkbox("他人を表示（リターン）", ref C.ShowOtherReturn);
+            ImGui.Checkbox("他人を表示（白床）", ref C.ShowOtherCleanse);
 
             if (ImGui.CollapsingHeader("優先リスト"))
             {
                 ImGuiEx.Text(C.PriorityData.GetPlayers(x => true).Select(x => x.NameWithWorld).Print("\n"));
-                ImGui.Separator();
-                ImGuiEx.Text("赤ブリザード:");
-                ImGuiEx.Text(C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
-                    { Color: Debuff.Red, Debuff: Debuff.Blizzard }).Select(x => x.NameWithWorld).Print("\n"));
-                ImGui.Separator();
-                ImGuiEx.Text("赤エアロ:");
-                ImGuiEx.Text(C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
-                    { Color: Debuff.Red, Debuff: Debuff.Aero }).Select(x => x.NameWithWorld).Print("\n"));
+                if (_players.Count > 0) {
+                    ImGui.Separator();
+                    ImGuiEx.Text("赤ブリザード:");
+                    ImGuiEx.Text(C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
+                        { Color: Debuff.Red, Debuff: Debuff.Blizzard }).Select(x => x.NameWithWorld).Print("\n"));
+                    ImGui.Separator();
+                    ImGuiEx.Text("赤エアロ:");
+                    ImGuiEx.Text(C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
+                        { Color: Debuff.Red, Debuff: Debuff.Aero }).Select(x => x.NameWithWorld).Print("\n"));
+                }
             }
         }
 
@@ -1573,6 +1722,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         public Vector4 BaitColor1 = 0xFFFF00FF.ToVector4();
         public Vector4 BaitColor2 = 0xFFFFFF00.ToVector4();
         public InternationalString CleanseText = new() { En = "Get Cleanse", Jp = "白を取れ！" };
+        public InternationalString CleansePosText = new() { En = "<< Go Here >>", Jp = "<< 白床位置 >>" };
         public string CommandWhenBlueDebuff = "";
         public MoveType EastSentence = MoveType.BlueBlizzard;
 
@@ -1602,6 +1752,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         public Direction NukemaruRewindPositionWhenSouthEastWave = Direction.South;
         public Direction NukemaruRewindPositionWhenSouthWestWave = Direction.South;
         public InternationalString PlaceReturnText = new() { En = "Place Return", Jp = "リターンを置け！" };
+        public InternationalString PlaceReturnPosText = new() { En = "<< Go Here >>", Jp = "<< 設置位置 >>" };
 
         public bool PrioritizeMarker;
 
@@ -1615,6 +1766,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
         public bool ShowOther;
         public bool ShowOtherReturn;
+        public bool ShowOtherCleanse;
         public MoveType SouthEastSentence = MoveType.BlueHoly;
         public MoveType SouthWestSentence = MoveType.BlueWater;
         public InternationalString SplitText = new() { En = "Split", Jp = "散開！" };
