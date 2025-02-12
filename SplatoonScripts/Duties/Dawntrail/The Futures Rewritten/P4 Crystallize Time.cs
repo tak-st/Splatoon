@@ -1388,12 +1388,12 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             var cleansePosText = C.CleansePosText.Get();
             ImGui.Text("白床表示テキスト:");
             ImGui.SameLine();
-            C.PlaceReturnText.ImGuiEdit(ref cleansePosText);
+            C.CleansePosText.ImGuiEdit(ref cleansePosText);
 
             var placeReturnPosText = C.PlaceReturnPosText.Get();
             ImGui.Text("リターン位置表示テキスト:");
             ImGui.SameLine();
-            C.PlaceReturnText.ImGuiEdit(ref placeReturnPosText);
+            C.PlaceReturnPosText.ImGuiEdit(ref placeReturnPosText);
 
             ImGui.Unindent();
 
