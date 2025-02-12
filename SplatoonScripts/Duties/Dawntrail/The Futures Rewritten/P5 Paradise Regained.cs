@@ -88,7 +88,7 @@ public class P5_Paradise_Regained : SplatoonScript
     private State _state = State.None;
 
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(5, "Garume + TS");
+    public override Metadata? Metadata => new(6, "Garume + TS");
 
     public Config C => Controller.GetConfig<Config>();
 
@@ -139,6 +139,15 @@ public class P5_Paradise_Regained : SplatoonScript
             radius = 5f,
             thicc = 6f,
             color = EColor.RedBright.ToUint()
+        });
+
+        Controller.RegisterElement("Text", new Element(0)
+        {
+            offX = 100f,
+            offY = 100f,
+            overlayFScale = 5f,
+            overlayVOffset = 5f,
+            radius = 0f
         });
     }
 
@@ -246,6 +255,19 @@ public class P5_Paradise_Regained : SplatoonScript
 
             var firstTower = _towers[0];
             if (C.MoveType == MoveType.FirstBait)
+                if (_firstAttack == AttackType.Light) {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.NearText.Get();
+                    }
+                } else {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.FarText.Get();
+                    }
+                }
                 switch (C.FirstBaitType)
                 {
                     case FirstBaitType.GoToSecondOrThirdTower:
@@ -286,6 +308,19 @@ public class P5_Paradise_Regained : SplatoonScript
                 }
 
             if (C.MoveType == MoveType.SecondBait)
+                if (_firstAttack == AttackType.Light) {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.RightText.Get() + "・" + C.FarText.Get();
+                    }
+                } else {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.LeftText.Get() + "・" + C.NearText.Get();
+                    }
+                }
                 switch (C.SecondBaitType)
                 {
                     case SecondBaitType.GoToFirstTower:
@@ -327,6 +362,19 @@ public class P5_Paradise_Regained : SplatoonScript
                 }
 
             if (C.MoveType == MoveType.Tower)
+                if (_firstAttack == AttackType.Light) {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.RightText.Get() + "・" + C.NearText.Get();
+                    }
+                } else {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.LeftText.Get() + "・" + C.FarText.Get();
+                    }
+                }
                 switch (C.TowerType)
                 {
                     case TowerType.First:
@@ -420,18 +468,57 @@ public class P5_Paradise_Regained : SplatoonScript
 
             if (C.MoveType == MoveType.FirstBait)
             {
+                if (_firstAttack == AttackType.Light) {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.NearText.Get();
+                    }
+                } else {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.FarText.Get();
+                    }
+                }
                 SetBaitPosition(_secondBaitPosition);
                 HidePredictBait();
             }
 
             if (C.MoveType == MoveType.SecondBait)
             {
+                if (_firstAttack == AttackType.Light) {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.FarText.Get();
+                    }
+                } else {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.NearText.Get();
+                    }
+                }
                 SetBaitPosition(_secondBaitPosition);
                 HidePredictBait();
             }
 
             if (C.MoveType == MoveType.Tower)
             {
+                if (_firstAttack == AttackType.Light) {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.FarText.Get();
+                    }
+                } else {
+                    if (Controller.TryGetElementByName("Text", out var element))
+                    {
+                        element.Enabled = true;
+                        element.overlayText = C.NearText.Get();
+                    }
+                }
                 HidePredictTower();
                 switch (C.TowerType)
                 {
@@ -580,6 +667,7 @@ public class P5_Paradise_Regained : SplatoonScript
         _state = State.None;
         _firstAttack = null;
         _towers.Clear();
+        if (Controller.TryGetElementByName("Text", out var element)) element.Enabled = false;
     }
     
     private readonly Dictionary<Direction,Vector2> _towerPositions = new()
@@ -666,6 +754,21 @@ public class P5_Paradise_Regained : SplatoonScript
         ImGui.Checkbox("Show Predict", ref C.ShowPredict);
         ImGui.ColorEdit4("Predict Color", ref C.PredictColor, ImGuiColorEditFlags.NoInputs);
         ImGui.Checkbox("Show Tank AOE", ref C.ShowAOE);
+        var leftText = C.LeftText.Get();
+        ImGui.Text("LeftText:");
+        ImGui.SameLine();
+        C.LeftText.ImGuiEdit(ref leftText);
+        var rightText = C.RightText.Get();
+        ImGui.Text("RightText:");
+        ImGui.SameLine();
+        C.RightText.ImGuiEdit(ref rightText);
+        ImGui.Text("FarText:");
+        ImGui.SameLine();
+        C.FarText.ImGuiEdit(ref farText);
+        var nearText = C.NearText.Get();
+        ImGui.Text("NearText:");
+        ImGui.SameLine();
+        C.NearText.ImGuiEdit(ref nearText);
         if (ImGuiEx.CollapsingHeader("Debug"))
         {
             ImGui.Text($"State: {_state}");
@@ -747,5 +850,9 @@ public class P5_Paradise_Regained : SplatoonScript
         public bool ShowAOE = true;
         public bool ShowPredict = true;
         public TowerType TowerType = TowerType.First;
+        public InternationalString LeftText = new() { En = "Left", Jp = "左安置" };
+        public InternationalString RightText = new() { En = "Right", Jp = "右安置" };
+        public InternationalString FarText = new() { En = "Far", Jp = "離れる" };
+        public InternationalString NearText = new() { En = "Near", Jp = "近づく" };
     }
 }
