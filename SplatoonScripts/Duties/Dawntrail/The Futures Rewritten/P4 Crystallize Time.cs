@@ -67,7 +67,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private List<float> ExtraRandomness = [];
     private bool Initialized;
-    public override Metadata? Metadata => new(14, "Garume, NightmareXIV + TS");
+    public override Metadata? Metadata => new(15, "Garume, NightmareXIV + TS");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -1224,7 +1224,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 {
                     var minWait = C.WaitRange.X;
                     var maxWait = C.WaitRange.Y;
-                    ImGui.SliderFloat2("待機範囲 (秒)", ref C.WaitRange, 0f, 7f, "%.1f");
+                    ImGui.SliderFloat2("待機範囲 (秒)", ref C.WaitRange, 0f, 14f, "%.1f");
                     if (Math.Abs(minWait - C.WaitRange.X) > 0.01f)
                     {
                         if (C.WaitRange.X > C.WaitRange.Y)
@@ -1256,12 +1256,12 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             ImGui.Checkbox("リターン位置が北かつ担当位置が2または3の場合、テイカー散会時に白床を回収", ref C.LateSentence);
 
             ImGui.Checkbox("静的なスピリットテイカーの位置を強調表示", ref C.HighlightSplitPosition);
-            ImGuiEx.TextWrapped(EColor.RedBright,
-                "登録済み要素セクションに移動し、「SplitPosition」要素を配置したい場所に配置してください。必要に応じてE12S(制限解除)に行ってプレビューを確認してください。");
-
+            
             if (C.HighlightSplitPosition)
                 if (Controller.TryGetElementByName("SplitPosition", out var element))
                 {
+                    ImGuiEx.TextWrapped(EColor.RedBright,"登録済み要素セクションに移動し、「SplitPosition」要素を配置したい場所に配置してください。必要に応じてE12S(制限解除)に行ってプレビューを確認してください。");
+
                     ImGui.Indent();
                     ImGui.Text($"位置:{element.refX}, {element.refY}");
                     ImGuiEx.EnumCombo("方向を編集", ref _editSplitElementDirection);

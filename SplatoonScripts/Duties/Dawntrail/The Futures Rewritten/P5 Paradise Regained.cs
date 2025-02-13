@@ -88,7 +88,7 @@ public class P5_Paradise_Regained : SplatoonScript
     private State _state = State.None;
 
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(7, "Garume + TS");
+    public override Metadata? Metadata => new(8, "Garume + TS");
 
     public Config C => Controller.GetConfig<Config>();
 
@@ -228,7 +228,7 @@ public class P5_Paradise_Regained : SplatoonScript
 
     public override void OnUpdate()
     {
-        if (_state is State.None or State.Start or State.End)
+        if (_state is State.None or State.Start or State.End || _firstAttack == null)
         {
             Controller.GetRegisteredElements().Each(e => e.Value.Enabled = false);
             return;

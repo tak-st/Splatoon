@@ -39,7 +39,7 @@ public class P1_Fall_of_Faith : SplatoonScript
     private Debuff firstDebuff = Debuff.None;
     private Debuff secondDebuff = Debuff.None;
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(3, "Garume + TS");
+    public override Metadata? Metadata => new(4, "Garume + TS");
     private Config C => Controller.GetConfig<Config>();
 
     public override void OnStartingCast(uint source, uint castId)
@@ -48,10 +48,13 @@ public class P1_Fall_of_Faith : SplatoonScript
         {
             _state = State.Start;
             var hasDebuffPlayer = FakeParty.Get().First(x => x.StatusList.Any(x => x.StatusId == 1051));
-            if (castId == 40137)
+            if (castId == 40137) {
                 _partyDatas[hasDebuffPlayer.Name.ToString()] = new PlayerData(Debuff.Red, C.Tether1Direction, 1);
-            else
+                firstDebuff = Debuff.Red;
+            } else {
                 _partyDatas[hasDebuffPlayer.Name.ToString()] = new PlayerData(Debuff.Blue, C.Tether1Direction, 1);
+                firstDebuff = Debuff.Blue;
+            }
             
             ApplyElement();
         }
@@ -209,8 +212,8 @@ public class P1_Fall_of_Faith : SplatoonScript
         {
             var text = data.Value.Debuff switch
             {
-                Debuff.Red => data.Value.Count + C.RedTetherText.Get(),
-                Debuff.Blue => data.Value.Count + C.BlueTetherText.Get(),
+                Debuff.Red => data.Value.Count + " " + C.RedTetherText.Get(),
+                Debuff.Blue => data.Value.Count + " " + C.BlueTetherText.Get(),
                 _ => string.Empty
             };
 
