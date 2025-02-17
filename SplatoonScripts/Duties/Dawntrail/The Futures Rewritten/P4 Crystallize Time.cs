@@ -667,7 +667,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
             var isSouthReturnPos = _firstWaveDirection == Direction.South || _secondWaveDirection == Direction.South;
             var marker = _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker;
-            if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && (!C.LateSentence || isSouthReturnPos || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)) && C.PrioritizeMarker)
+            if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && (!C.LateSentence || isSouthReturnPos || _secondWaveDirection == null || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)) && C.PrioritizeMarker)
             {
 
                 if (marker != null)
