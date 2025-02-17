@@ -67,7 +67,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private List<float> ExtraRandomness = [];
     private bool Initialized;
-    public override Metadata? Metadata => new(16, "Garume, NightmareXIV + TS");
+    public override Metadata? Metadata => new(17, "Garume, NightmareXIV + TS");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -647,6 +647,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private void BurnPurpleHourglass()
     {
+        var directionTxt = "";
         foreach (var player in Enum.GetValues<MoveType>())
         {
             var position = player switch
@@ -663,31 +664,37 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             };
 
             position = SwapXIfNecessary(position);
+
+            var isSouthReturnPos = _firstWaveDirection == Direction.South || _secondWaveDirection == Direction.South;
+            var marker = _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker;
+            if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && (!C.LateSentence || isSouthReturnPos || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)) && C.PrioritizeMarker)
+            {
+
+                if (marker != null)
+                {
+                    directionTxt = marker switch
+                    {
+                        MarkerType.Attack1 => "(この後、B)",
+                        MarkerType.Attack2 => "(この後、2)",
+                        MarkerType.Attack3 => "(この後、3)",
+                        MarkerType.Attack4 => "(この後、D)",
+                        _ => "(マーカーなし)"
+                    };
+                    if (_firstWaveDirection == Direction.West && (marker == MarkerType.Attack1 || marker == MarkerType.Attack2))
+                    {
+                        position += new Vector2(15, 0);
+                    }
+                }
+                else
+                {
+                    directionTxt = "(マーカーなし)";
+                }
+            }
             if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
             {
                 element.overlayText = "";
                 element.radius = 1f;
                 element.SetOffPosition(position.ToVector3(0));
-            }
-        }
-
-        var directionTxt = "";
-        var isSouthReturnPos = _firstWaveDirection == Direction.South || _secondWaveDirection == Direction.South;
-        var marker = _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker;
-        if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && (!C.LateSentence || isSouthReturnPos || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)) && C.PrioritizeMarker){
-            
-            if (marker != null)
-            {
-                directionTxt = marker switch
-                {
-                    MarkerType.Attack1 => "(この後、B)",
-                    MarkerType.Attack2 => "(この後、2)",
-                    MarkerType.Attack3 => "(この後、3)",
-                    MarkerType.Attack4 => "(この後、D)",
-                    _ => "(マーカーなし)"
-                };
-            } else {
-                directionTxt = "(マーカーなし)";
             }
         }
 
@@ -821,7 +828,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
                 if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
                 {
-                    element.radius = 2f;
+                    element.radius = 0.5f;
                     element.SetOffPosition(position.ToVector3(0));
                     element.overlayText = C.CleansePosText.Get();
                     element.overlayFScale = 2f;
@@ -931,16 +938,16 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             {
                 var position = direction switch
                 {
-                    Direction.West => new Vector2(93, 100),
-                    Direction.SouthWest => new Vector2(93, 107),
-                    Direction.SouthEast => new Vector2(107, 107),
-                    Direction.East => new Vector2(107, 100),
+                    Direction.West => new Vector2(92, 100),
+                    Direction.SouthWest => new Vector2(91, 109),
+                    Direction.SouthEast => new Vector2(109, 109),
+                    Direction.East => new Vector2(108, 100),
                     _ => new Vector2(100, 100)
                 };
 
                 if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
                 {
-                    element.radius = 1f;
+                    element.radius = 0.5f;
                     element.SetOffPosition(position.ToVector3(0));
                     element.overlayText = C.CleansePosText.Get() + "?";
                     element.overlayFScale = 2f;
