@@ -1271,7 +1271,9 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 ImGuiEx.EnumCombo("攻撃3の時", ref C.WhenAttack3);
                 ImGuiEx.EnumCombo("攻撃4の時", ref C.WhenAttack4);
                 ImGui.Unindent();
-            } else {
+            }
+            else
+            {
                 ImGuiEx.EnumCombo("D(4)の白床", ref C.WestSentence);
                 ImGuiEx.EnumCombo("3の白床", ref C.SouthWestSentence);
                 ImGuiEx.EnumCombo("2の白床", ref C.SouthEastSentence);
@@ -1280,15 +1282,15 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             }
 
             ImGui.Separator();
-            
+
             ImGui.Checkbox("リターン位置が北かつ担当位置が2または3の場合、テイカー散会時に白床を回収", ref C.LateSentence);
 
             ImGui.Checkbox("静的なスピリットテイカーの位置を強調表示", ref C.HighlightSplitPosition);
-            
+
             if (C.HighlightSplitPosition)
                 if (Controller.TryGetElementByName("SplitPosition", out var element))
                 {
-                    ImGuiEx.TextWrapped(EColor.RedBright,"登録済み要素セクションに移動し、「SplitPosition」要素を配置したい場所に配置してください。必要に応じてE12S(制限解除)に行ってプレビューを確認してください。");
+                    ImGuiEx.TextWrapped(EColor.RedBright, "登録済み要素セクションに移動し、「SplitPosition」要素を配置したい場所に配置してください。必要に応じてE12S(制限解除)に行ってプレビューを確認してください。");
 
                     ImGui.Indent();
                     ImGui.Text($"位置:{element.refX}, {element.refY}");
@@ -1339,7 +1341,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             {
                 ImGui.Checkbox("タンク?", ref C.IsTank);
 
-                if (C.IsTank && C.hamukatuRewind) {
+                if (C.IsTank && C.hamukatuRewind)
+                {
                     ImGui.Text("北東(1)の波の時:");
                     ImGui.SameLine();
                     ImGuiEx.RadioButtonBool($"前##{nameof(C.IsWestWhenNorthEastWave)}",
@@ -1356,7 +1359,9 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     ImGui.SameLine();
                     ImGuiEx.RadioButtonBool($"前##{nameof(C.IsWestWhenNorthWestWave)}",
                         $"後##{nameof(C.IsWestWhenNorthWestWave)}", ref C.IsWestWhenNorthWestWave, true);
-                } else {
+                }
+                else
+                {
                     ImGuiEx.Text("()内は外周を前とした際の方向");
                     ImGui.Text("北東(1)の波の時:");
                     ImGui.SameLine();
@@ -1492,11 +1497,10 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         ImGui.Separator();
                         ImGuiEx.Text("赤エアロ:");
                         ImGuiEx.Text(aeroPlayers.Select(x => x.NameWithWorld).Print("\n"));
-
                     }
                 }
             }
-
+        }
         if (ImGuiEx.CollapsingHeader("Debug"))
         {
             ImGuiEx.Text($"Stage: {GetStage()}, remaining time = {SpellInWaitingDebuffTime}");
