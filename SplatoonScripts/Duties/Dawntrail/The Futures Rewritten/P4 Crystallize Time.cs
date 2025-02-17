@@ -755,53 +755,56 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     element.SetOffPosition(position.Value.ToVector3(0));
                 }
             }
+            var myMove = _players.SafeSelect(BasePlayer.GameObjectId)?.MoveType ?? (BasePlayer.Position.X < 100 ? MoveType.RedAeroWest : MoveType.RedAeroEast);
 
-            if (_firstWaveDirection == Direction.West)
+            if (player == myMove)
             {
-                if (_lateHourglassDirection is Direction.NorthEast) // ／
+                if (_firstWaveDirection == Direction.West)
                 {
-                    infoTxt = player switch
+                    if (_lateHourglassDirection is Direction.NorthEast) // ／
                     {
-                        MoveType.RedAeroWest => "(波南避け -> ダッシュ)",
-                        MoveType.RedAeroEast => "(竜回収 -> 波東避け)",
-                        _ => ""
-                    };
-                }
-                else // ＼
-                {
-                    infoTxt = player switch
+                        infoTxt = player switch
+                        {
+                            MoveType.RedAeroWest => "(波南避け -> ダッシュ)",
+                            MoveType.RedAeroEast => "(竜回収 -> 波東避け)",
+                            _ => player.ToString()
+                        };
+                    }
+                    else // ＼
                     {
-                        MoveType.RedAeroWest => "(早爆発 -> 波西避け)",
-                        MoveType.RedAeroEast => "(遅爆発 -> 竜回収 -> 波東避け)",
-                        _ => ""
-                    };
+                        infoTxt = player switch
+                        {
+                            MoveType.RedAeroWest => "(早爆発 -> 波西避け)",
+                            MoveType.RedAeroEast => "(遅爆発 -> 竜回収 -> 波東避け)",
+                            _ => player.ToString()
+                        };
+                    }
                 }
-            }
 
-            if (_firstWaveDirection == Direction.East)
-            {
-                if (_lateHourglassDirection is Direction.NorthEast) // ／
+                if (_firstWaveDirection == Direction.East)
                 {
-                    infoTxt = player switch
+                    if (_lateHourglassDirection is Direction.NorthEast) // ／
                     {
-                        MoveType.RedAeroWest => "(遅爆発 -> 竜回収 -> 波西避け)",
-                        MoveType.RedAeroEast => "(早爆発 -> 波東避け)",
-                        _ => ""
-                    };
-                }
-                else // ＼
-                {
-                    infoTxt = player switch
+                        infoTxt = player switch
+                        {
+                            MoveType.RedAeroWest => "(遅爆発 -> 竜回収 -> 波西避け)",
+                            MoveType.RedAeroEast => "(早爆発 -> 波東避け)",
+                            _ => player.ToString()
+                        };
+                    }
+                    else // ＼
                     {
-                        MoveType.RedAeroWest => "(竜回収 -> 波西避け)",
-                        MoveType.RedAeroEast => "(波南避け -> ダッシュ)",
-                        _ => ""
-                    };
+                        infoTxt = player switch
+                        {
+                            MoveType.RedAeroWest => "(竜回収 -> 波西避け)",
+                            MoveType.RedAeroEast => "(波南避け -> ダッシュ)",
+                            _ => player.ToString()
+                        };
+                    }
                 }
             }
         }
 
-        var myMove = _players.SafeSelect(BasePlayer.GameObjectId)?.MoveType;
         //if (myMove is MoveType.RedAeroEast or MoveType.RedAeroWest)
         var remainingTime = SpellInWaitingDebuffTime - 8;
         Alert(C.HitDragonText.Get() + infoTxt + $" ({remainingTime:0.0}s)");
