@@ -67,7 +67,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private List<float> ExtraRandomness = [];
     private bool Initialized;
-    public override Metadata? Metadata => new(15, "Garume, NightmareXIV + TS");
+    public override Metadata? Metadata => new(16, "Garume, NightmareXIV + TS");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -808,116 +808,144 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
             var cleanses = Cleanses.ToArray();
 
-            var position = direction switch
+            if (cleanses.Length >= 4)
             {
-                Direction.West => cleanses[0].Position.ToVector2(),
-                Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                Direction.East => cleanses[3].Position.ToVector2(),
-                _ => new Vector2(100, 100)
-            };
+                var position = direction switch
+                {
+                    Direction.West => cleanses[0].Position.ToVector2(),
+                    Direction.SouthWest => cleanses[1].Position.ToVector2(),
+                    Direction.SouthEast => cleanses[2].Position.ToVector2(),
+                    Direction.East => cleanses[3].Position.ToVector2(),
+                    _ => new Vector2(100, 100)
+                };
 
-            if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
+                if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
+                {
+                    element.radius = 2f;
+                    element.SetOffPosition(position.ToVector3(0));
+                    element.overlayText = C.CleansePosText.Get();
+                    element.overlayFScale = 2f;
+                    element.overlayVOffset = 2f;
+                    element.tether = true;
+                }
+
+                if (C.ShowOtherCleanse && C.PrioritizeMarker)
+                {
+                    List<string> items = Enum.GetValues<MoveType>()
+                                            .Select(e => e.ToString())
+                                            .Where(name => name.StartsWith("Blue") && name != player.ToString())
+                                            .ToList();
+                    if (items.Count() > 0 && direction != C.WhenAttack1)
+                    {
+                        var CleansePos = C.WhenAttack1 switch
+                        {
+                            Direction.West => cleanses[0].Position.ToVector2(),
+                            Direction.SouthWest => cleanses[1].Position.ToVector2(),
+                            Direction.SouthEast => cleanses[2].Position.ToVector2(),
+                            Direction.East => cleanses[3].Position.ToVector2(),
+                            _ => new Vector2(100, 100)
+                        };
+                        if (Controller.TryGetElementByName(items[0], out var element1))
+                        {
+                            element1.radius = 2f;
+                            element1.SetOffPosition(CleansePos.ToVector3(0));
+                            element1.overlayText = "<< 1 >>";
+                            element1.overlayFScale = 2f;
+                            element1.overlayVOffset = 2f;
+                            element1.tether = false;
+                            element1.color = EColor.Red.ToUint();
+                        }
+                        items.RemoveAt(0);
+                    }
+
+                    if (items.Count() > 0 && direction != C.WhenAttack2)
+                    {
+                        var CleansePos = C.WhenAttack2 switch
+                        {
+                            Direction.West => cleanses[0].Position.ToVector2(),
+                            Direction.SouthWest => cleanses[1].Position.ToVector2(),
+                            Direction.SouthEast => cleanses[2].Position.ToVector2(),
+                            Direction.East => cleanses[3].Position.ToVector2(),
+                            _ => new Vector2(100, 100)
+                        };
+                        if (Controller.TryGetElementByName(items[0], out var element2))
+                        {
+                            element2.radius = 2f;
+                            element2.SetOffPosition(CleansePos.ToVector3(0));
+                            element2.overlayText = "<< 2 >>";
+                            element2.overlayFScale = 2f;
+                            element2.overlayVOffset = 2f;
+                            element2.tether = false;
+                            element2.color = EColor.Red.ToUint();
+                        }
+                        items.RemoveAt(0);
+                    }
+
+                    if (items.Count() > 0 && direction != C.WhenAttack3)
+                    {
+                        var CleansePos = C.WhenAttack3 switch
+                        {
+                            Direction.West => cleanses[0].Position.ToVector2(),
+                            Direction.SouthWest => cleanses[1].Position.ToVector2(),
+                            Direction.SouthEast => cleanses[2].Position.ToVector2(),
+                            Direction.East => cleanses[3].Position.ToVector2(),
+                            _ => new Vector2(100, 100)
+                        };
+                        if (Controller.TryGetElementByName(items[0], out var element3))
+                        {
+                            element3.radius = 2f;
+                            element3.SetOffPosition(CleansePos.ToVector3(0));
+                            element3.overlayText = "<< 3 >>";
+                            element3.overlayFScale = 2f;
+                            element3.overlayVOffset = 2f;
+                            element3.tether = false;
+                            element3.color = EColor.Red.ToUint();
+                        }
+                        items.RemoveAt(0);
+                    }
+
+                    if (items.Count() > 0 && direction != C.WhenAttack4)
+                    {
+                        var CleansePos = C.WhenAttack4 switch
+                        {
+                            Direction.West => cleanses[0].Position.ToVector2(),
+                            Direction.SouthWest => cleanses[1].Position.ToVector2(),
+                            Direction.SouthEast => cleanses[2].Position.ToVector2(),
+                            Direction.East => cleanses[3].Position.ToVector2(),
+                            _ => new Vector2(100, 100)
+                        };
+                        if (Controller.TryGetElementByName(items[0], out var element4))
+                        {
+                            element4.radius = 2f;
+                            element4.SetOffPosition(CleansePos.ToVector3(0));
+                            element4.overlayText = "<< 4 >>";
+                            element4.overlayFScale = 2f;
+                            element4.overlayVOffset = 2f;
+                            element4.tether = false;
+                            element4.color = EColor.Red.ToUint();
+                        }
+                        items.RemoveAt(0);
+                    }
+                }
+            } else
             {
-                element.radius = 2f;
-                element.SetOffPosition(position.ToVector3(0));
-                element.overlayText = C.CleansePosText.Get();
-                element.overlayFScale = 2f;
-                element.overlayVOffset = 2f;
-                element.tether = true;
-            }
+                var position = direction switch
+                {
+                    Direction.West => new Vector2(93, 100),
+                    Direction.SouthWest => new Vector2(93, 107),
+                    Direction.SouthEast => new Vector2(107, 107),
+                    Direction.East => new Vector2(107, 100),
+                    _ => new Vector2(100, 100)
+                };
 
-            if (C.ShowOtherCleanse && C.PrioritizeMarker) {
-                List<string> items = Enum.GetValues<MoveType>()
-                                        .Select(e => e.ToString())
-                                        .Where(name => name.StartsWith("Blue") && name != player.ToString())
-                                        .ToList();
-                if (items.Count() > 0 && direction != C.WhenAttack1) {
-                    var CleansePos = C.WhenAttack1 switch
-                    {
-                        Direction.West => cleanses[0].Position.ToVector2(),
-                        Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                        Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                        Direction.East => cleanses[3].Position.ToVector2(),
-                        _ => new Vector2(100, 100)
-                    };
-                    if (Controller.TryGetElementByName(items[0], out var element1))
-                    {
-                        element1.radius = 2f;
-                        element1.SetOffPosition(CleansePos.ToVector3(0));
-                        element1.overlayText = "<< 1 >>";
-                        element1.overlayFScale = 2f;
-                        element1.overlayVOffset = 2f;
-                        element1.tether = false;
-                        element1.color = EColor.Red.ToUint();
-                    }
-                    items.RemoveAt(0);
-                }
-
-                if (items.Count() > 0 && direction != C.WhenAttack2) {
-                    var CleansePos = C.WhenAttack2 switch
-                    {
-                        Direction.West => cleanses[0].Position.ToVector2(),
-                        Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                        Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                        Direction.East => cleanses[3].Position.ToVector2(),
-                        _ => new Vector2(100, 100)
-                    };
-                    if (Controller.TryGetElementByName(items[0], out var element2))
-                    {
-                        element2.radius = 2f;
-                        element2.SetOffPosition(CleansePos.ToVector3(0));
-                        element2.overlayText = "<< 2 >>";
-                        element2.overlayFScale = 2f;
-                        element2.overlayVOffset = 2f;
-                        element2.tether = false;
-                        element2.color = EColor.Red.ToUint();
-                    }
-                    items.RemoveAt(0);
-                }
-
-                if (items.Count() > 0 && direction != C.WhenAttack3) {
-                    var CleansePos = C.WhenAttack3 switch
-                    {
-                        Direction.West => cleanses[0].Position.ToVector2(),
-                        Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                        Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                        Direction.East => cleanses[3].Position.ToVector2(),
-                        _ => new Vector2(100, 100)
-                    };
-                    if (Controller.TryGetElementByName(items[0], out var element3))
-                    {
-                        element3.radius = 2f;
-                        element3.SetOffPosition(CleansePos.ToVector3(0));
-                        element3.overlayText = "<< 3 >>";
-                        element3.overlayFScale = 2f;
-                        element3.overlayVOffset = 2f;
-                        element3.tether = false;
-                        element3.color = EColor.Red.ToUint();
-                    }
-                    items.RemoveAt(0);
-                }
-
-                if (items.Count() > 0 && direction != C.WhenAttack4) {
-                    var CleansePos = C.WhenAttack4 switch
-                    {
-                        Direction.West => cleanses[0].Position.ToVector2(),
-                        Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                        Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                        Direction.East => cleanses[3].Position.ToVector2(),
-                        _ => new Vector2(100, 100)
-                    };
-                    if (Controller.TryGetElementByName(items[0], out var element4))
-                    {
-                        element4.radius = 2f;
-                        element4.SetOffPosition(CleansePos.ToVector3(0));
-                        element4.overlayText = "<< 4 >>";
-                        element4.overlayFScale = 2f;
-                        element4.overlayVOffset = 2f;
-                        element4.tether = false;
-                        element4.color = EColor.Red.ToUint();
-                    }
-                    items.RemoveAt(0);
+                if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
+                {
+                    element.radius = 1f;
+                    element.SetOffPosition(position.ToVector3(0));
+                    element.overlayText = C.CleansePosText.Get() + "?";
+                    element.overlayFScale = 2f;
+                    element.overlayVOffset = 2f;
+                    element.tether = true;
                 }
             }
         }
@@ -1445,19 +1473,29 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
             if (ImGui.CollapsingHeader("優先リスト"))
             {
-                ImGuiEx.Text(C.PriorityData.GetPlayers(x => true).Select(x => x.NameWithWorld).Print("\n"));
-                if (_players.Count > 0) {
-                    ImGui.Separator();
-                    ImGuiEx.Text("赤ブリザード:");
-                    ImGuiEx.Text(C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
-                        { Color: Debuff.Red, Debuff: Debuff.Blizzard }).Select(x => x.NameWithWorld).Print("\n"));
-                    ImGui.Separator();
-                    ImGuiEx.Text("赤エアロ:");
-                    ImGuiEx.Text(C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
-                        { Color: Debuff.Red, Debuff: Debuff.Aero }).Select(x => x.NameWithWorld).Print("\n"));
+                var players = C.PriorityData?.GetPlayers(x => true);
+                if (C.PriorityData != null && players != null)
+                {
+                    ImGuiEx.Text(players.Select(x => x.NameWithWorld).Print("\n"));
+                    var redPlayers = C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
+                    { Color: Debuff.Red, Debuff: Debuff.Blizzard });
+                    if (redPlayers != null)
+                    {
+                        ImGui.Separator();
+                        ImGuiEx.Text("赤ブリザード:");
+                        ImGuiEx.Text(redPlayers.Select(x => x.NameWithWorld).Print("\n"));
+                    }
+                    var aeroPlayers = C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
+                    { Color: Debuff.Red, Debuff: Debuff.Aero });
+                    if (aeroPlayers != null)
+                    {
+                        ImGui.Separator();
+                        ImGuiEx.Text("赤エアロ:");
+                        ImGuiEx.Text(aeroPlayers.Select(x => x.NameWithWorld).Print("\n"));
+
+                    }
                 }
             }
-        }
 
         if (ImGuiEx.CollapsingHeader("Debug"))
         {
