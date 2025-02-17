@@ -685,7 +685,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     };
                     if (_firstWaveDirection == Direction.West && (marker == MarkerType.Attack1 || marker == MarkerType.Attack2))
                     {
-                        position = new Vector2((float)107.5, 85);
+                        position = new Vector2(110, 85);
                     }
                 }
                 else
