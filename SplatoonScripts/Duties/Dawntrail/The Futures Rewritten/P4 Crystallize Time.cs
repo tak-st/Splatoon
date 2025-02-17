@@ -67,7 +67,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private List<float> ExtraRandomness = [];
     private bool Initialized;
-    public override Metadata? Metadata => new(17, "Garume, NightmareXIV + TS");
+    public override Metadata? Metadata => new(18, "Garume, NightmareXIV + TS");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -682,7 +682,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     };
                     if (_firstWaveDirection == Direction.West && (marker == MarkerType.Attack1 || marker == MarkerType.Attack2))
                     {
-                        position += new Vector2(15, 0);
+                        position = new Vector2(115, 100);
                     }
                 }
                 else
