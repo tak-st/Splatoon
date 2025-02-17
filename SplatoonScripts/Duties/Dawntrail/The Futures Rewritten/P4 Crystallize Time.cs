@@ -67,7 +67,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private List<float> ExtraRandomness = [];
     private bool Initialized;
-    public override Metadata? Metadata => new(18, "Garume, NightmareXIV + TS");
+    public override Metadata? Metadata => new(19, "Garume, NightmareXIV + TS");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -470,7 +470,10 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     PlaceReturn(true);
                 }
                 else
-                    PlaceReturn();
+                    if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Red))
+                        HitDragonAndAero();
+                    else
+                        PlaceReturn();
                 break;
             case MechanicStage.Step7_SpiritTaker:
                 if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue))
@@ -682,7 +685,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     };
                     if (_firstWaveDirection == Direction.West && (marker == MarkerType.Attack1 || marker == MarkerType.Attack2))
                     {
-                        position = new Vector2(115, 100);
+                        position = new Vector2((float)107.5, 85);
                     }
                 }
                 else
@@ -704,6 +707,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private void HitDragonAndAero()
     {
+        var infoTxt = "";
         foreach (var player in Enum.GetValues<MoveType>())
         {
             Direction? returnDirection = (_firstWaveDirection, _secondWaveDirection) switch
@@ -751,11 +755,56 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     element.SetOffPosition(position.Value.ToVector3(0));
                 }
             }
+
+            if (_firstWaveDirection == Direction.West)
+            {
+                if (_lateHourglassDirection is Direction.NorthEast) // ／
+                {
+                    infoTxt = player switch
+                    {
+                        MoveType.RedAeroWest => "(波南避け -> ダッシュ)",
+                        MoveType.RedAeroEast => "(竜回収 -> 波東避け)",
+                        _ => ""
+                    };
+                }
+                else // ＼
+                {
+                    infoTxt = player switch
+                    {
+                        MoveType.RedAeroWest => "(早爆発 -> 波西避け)",
+                        MoveType.RedAeroEast => "(遅爆発 -> 竜回収 -> 波東避け)",
+                        _ => ""
+                    };
+                }
+            }
+
+            if (_firstWaveDirection == Direction.East)
+            {
+                if (_lateHourglassDirection is Direction.NorthEast) // ／
+                {
+                    infoTxt = player switch
+                    {
+                        MoveType.RedAeroWest => "(遅爆発 -> 竜回収 -> 波西避け)",
+                        MoveType.RedAeroEast => "(早爆発 -> 波東避け)",
+                        _ => ""
+                    };
+                }
+                else // ＼
+                {
+                    infoTxt = player switch
+                    {
+                        MoveType.RedAeroWest => "(竜回収 -> 波西避け)",
+                        MoveType.RedAeroEast => "(波南避け -> ダッシュ)",
+                        _ => ""
+                    };
+                }
+            }
         }
 
         var myMove = _players.SafeSelect(BasePlayer.GameObjectId)?.MoveType;
-        if (myMove is MoveType.RedAeroEast or MoveType.RedAeroWest)
-            Alert(C.HitDragonText.Get());
+        //if (myMove is MoveType.RedAeroEast or MoveType.RedAeroWest)
+        var remainingTime = SpellInWaitingDebuffTime - 8;
+        Alert(C.HitDragonText.Get() + infoTxt + $" ({remainingTime:0.0}s)");
     }
 
     private string SwapIfNecessary(MoveType move)
