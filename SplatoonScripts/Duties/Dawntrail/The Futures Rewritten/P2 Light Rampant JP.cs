@@ -137,8 +137,8 @@ public class P2_Light_Rampant_JP : SplatoonScript
 
     public override void OnSettingsDraw()
     {
-        ImGuiEx.Text("TS Fork Version " + Metadata.Version);
-        if(Metadata.Website && ImGui.Selectable("Read Me"))
+        ImGuiEx.Text("TS Fork Version " + Metadata?.Version);
+        if (Metadata?.Website != null && ImGui.Selectable("Read Me"))
         {
             GenericHelpers.ShellStart(Metadata.Website);
         }

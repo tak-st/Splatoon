@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
+using ECommons;
 using ECommons.Configuration;
 using ECommons.DalamudServices;
 using ECommons.DalamudServices.Legacy;
 using ECommons.GameHelpers;
+using ECommons.ImGuiMethods;
 using ECommons.Throttlers;
 using ImGuiNET;
 using Splatoon.SplatoonScripting;
@@ -24,8 +27,8 @@ public class P2_AutoTargetCrystal : SplatoonScript
 
     public override void OnSettingsDraw()
     {
-        ImGuiEx.Text("TS Fork Version " + Metadata.Version);
-        if(Metadata.Website && ImGui.Selectable("Read Me"))
+        ImGuiEx.Text("TS Fork Version " + Metadata?.Version);
+        if (Metadata?.Website != null && ImGui.Selectable("Read Me"))
         {
             GenericHelpers.ShellStart(Metadata.Website);
         }

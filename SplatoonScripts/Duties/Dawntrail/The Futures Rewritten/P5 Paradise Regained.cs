@@ -734,8 +734,8 @@ public class P5_Paradise_Regained : SplatoonScript
 
     public override void OnSettingsDraw()
     {
-        ImGuiEx.Text("TS Fork Version " + Metadata.Version);
-        if(Metadata.Website && ImGui.Selectable("Read Me"))
+        ImGuiEx.Text("TS Fork Version " + Metadata?.Version);
+        if (Metadata?.Website != null && ImGui.Selectable("Read Me"))
         {
             GenericHelpers.ShellStart(Metadata.Website);
         }

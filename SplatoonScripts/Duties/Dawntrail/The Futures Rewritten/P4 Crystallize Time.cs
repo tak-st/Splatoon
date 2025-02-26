@@ -133,7 +133,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         if (currentPositions.Length == 4)
         {
             _cachedCleanses = currentPositions.ToList();
-            return currentCleanses;
+            return currentPositions;
         }
         else if (currentPositions.Length <= 3 && _cachedCleanses != null)
         {
@@ -1326,8 +1326,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     public override void OnSettingsDraw()
     {
-        ImGuiEx.Text("TS Fork Version " + Metadata.Version);
-        if(Metadata.Website && ImGui.Selectable("Read Me"))
+        ImGuiEx.Text("TS Fork Version " + Metadata?.Version);
+        if(Metadata?.Website != null && ImGui.Selectable("Read Me"))
         {
             GenericHelpers.ShellStart(Metadata.Website);
         }
