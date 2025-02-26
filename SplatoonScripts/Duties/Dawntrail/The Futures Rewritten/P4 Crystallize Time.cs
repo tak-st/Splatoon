@@ -67,7 +67,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     private List<float> ExtraRandomness = [];
     private bool Initialized;
-    public override Metadata? Metadata => new(19, "Garume, NightmareXIV + TS");
+    private bool useCommandAgain = false;
+    public override Metadata? Metadata => new(20, "Garume, NightmareXIV + TS");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -105,9 +106,41 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
     private static IBattleNpc? EastDragon => Svc.Objects.Where(x => x is { DataId: 0x45AC, Position.X: > 100 })
         .Select(x => x as IBattleNpc).First();
 
-    private static IEnumerable<IEventObj> Cleanses => Svc.Objects.Where(x => x is { DataId: 0x1EBD41 })
+    private List<Vector2>? _cachedCleanses;
+
+    private static IEnumerable<Vector2> CleansesPositions => Svc.Objects
+        .Where(x => x is { DataId: 0x1EBD41 })
         .OfType<IEventObj>()
-        .OrderBy(x => x.Position.X);
+        .OrderBy(x => x.Position.X)
+        .Select(x => x.Position.ToVector2());
+
+    private void CheckCleanses()
+    {
+        if (_cachedCleanses is not null) return;
+
+        var currentPositions = CleansesPositions.ToArray();
+        
+        if (currentPositions.Length == 4)
+        {
+            _cachedCleanses = currentPositions.ToList();
+        }
+    }
+
+    private IEnumerable<Vector2> GetCleanses()
+    {
+        var currentPositions = CleansesPositions.ToArray();
+
+        if (currentPositions.Length == 4)
+        {
+            _cachedCleanses = currentPositions.ToList();
+            return currentCleanses;
+        }
+        else if (currentPositions.Length <= 3 && _cachedCleanses != null)
+        {
+            return _cachedCleanses;
+        }
+        return currentPositions;
+    }
 
     private MechanicStage GetStage()
     {
@@ -277,10 +310,12 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
     public override void OnReset()
     {
         Initialized = false;
+        useCommandAgain = false;
         _baseDirection = null;
         _lateHourglassDirection = null;
         _firstWaveDirection = null;
         _secondWaveDirection = null;
+        _cachedCleanses = null;
         _players.Clear();
         _earlyHourglassList.Clear();
         _lateHourglassList.Clear();
@@ -465,7 +500,6 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 var isSouthReturnPos = _firstWaveDirection == Direction.South || _secondWaveDirection == Direction.South;
                 if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && SpellInWaitingDebuffTime > C.ReturnShowTime && (!C.LateSentence || isSouthReturnPos || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)))
                 {
-
                     CorrectCleanse();
                     PlaceReturn(true);
                 }
@@ -672,6 +706,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             var marker = _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker;
             if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue) && (!C.LateSentence || isSouthReturnPos || _secondWaveDirection == null || !(marker == MarkerType.Attack2 || marker == MarkerType.Attack3)) && C.PrioritizeMarker)
             {
+                CheckCleanses();
 
                 if (marker != null)
                 {
@@ -701,6 +736,11 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             }
         }
 
+        if (!useCommandAgain && directionTxt == "(マーカーなし)") {
+            useCommandAgain = true;
+            var random = RandomNumberGenerator.GetInt32((int)0, (int)1000);
+            Controller.Schedule(() => { Chat.Instance.ExecuteCommand(C.CommandWhenBlueDebuff); }, random);
+        }
         var remainingTime = SpellInWaitingDebuffTime;
         Alert(C.AvoidWaveText.Get() + directionTxt + $" ({remainingTime:0.0}s)");
     }
@@ -755,7 +795,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     element.SetOffPosition(position.Value.ToVector3(0));
                 }
             }
-            var myMove = _players.SafeSelect(BasePlayer.GameObjectId)?.MoveType ?? (BasePlayer.Position.X < 100 ? MoveType.RedAeroWest : MoveType.RedAeroEast);
+            var myMove = _players.SafeSelect(BasePlayer.GameObjectId)?.MoveType;
 
             if (player == myMove)
             {
@@ -766,8 +806,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         infoTxt = player switch
                         {
                             MoveType.RedAeroWest => "(波南避け -> ダッシュ)",
-                            MoveType.RedAeroEast => "(竜回収 -> 波東避け)",
-                            _ => player.ToString()
+                            MoveType.RedAeroEast => "(先竜回収 -> 波東避け)",
+                            _ => ""
                         };
                     }
                     else // ＼
@@ -775,8 +815,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         infoTxt = player switch
                         {
                             MoveType.RedAeroWest => "(早爆発 -> 波西避け)",
-                            MoveType.RedAeroEast => "(遅爆発 -> 竜回収 -> 波東避け)",
-                            _ => player.ToString()
+                            MoveType.RedAeroEast => "(遅爆発 -> 先竜回収 -> 波東避け)",
+                            _ => ""
                         };
                     }
                 }
@@ -787,20 +827,67 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     {
                         infoTxt = player switch
                         {
-                            MoveType.RedAeroWest => "(遅爆発 -> 竜回収 -> 波西避け)",
+                            MoveType.RedAeroWest => "(遅爆発 -> 先竜回収 -> 波西避け)",
                             MoveType.RedAeroEast => "(早爆発 -> 波東避け)",
-                            _ => player.ToString()
+                            _ => ""
                         };
                     }
                     else // ＼
                     {
                         infoTxt = player switch
                         {
-                            MoveType.RedAeroWest => "(竜回収 -> 波西避け)",
+                            MoveType.RedAeroWest => "(先竜回収 -> 波西避け)",
                             MoveType.RedAeroEast => "(波南避け -> ダッシュ)",
-                            _ => player.ToString()
+                            _ => ""
                         };
                     }
+                }
+            }
+        }
+
+        if (infoTxt == "") {
+            var _player = (BasePlayer.Position.X < 100 ? MoveType.RedAeroWest : MoveType.RedAeroEast);
+            if (_firstWaveDirection == Direction.West)
+            {
+                if (_lateHourglassDirection is Direction.NorthEast) // ／
+                {
+                    infoTxt = _player switch
+                    {
+                        MoveType.RedAeroWest => "(波南避け -> ダッシュ)",
+                        MoveType.RedAeroEast => "(先竜回収 -> 波東避け)",
+                        _ => ""
+                    };
+                }
+                else // ＼
+                {
+                    infoTxt = _player switch
+                    {
+                        MoveType.RedAeroWest => "(早爆発 -> 波西避け)",
+                        MoveType.RedAeroEast => "(遅爆発 -> 先竜回収 -> 波東避け)",
+                        _ => ""
+                    };
+                }
+            }
+
+            if (_firstWaveDirection == Direction.East)
+            {
+                if (_lateHourglassDirection is Direction.NorthEast) // ／
+                {
+                    infoTxt = _player switch
+                    {
+                        MoveType.RedAeroWest => "(遅爆発 -> 先竜回収 -> 波西避け)",
+                        MoveType.RedAeroEast => "(早爆発 -> 波東避け)",
+                        _ => ""
+                    };
+                }
+                else // ＼
+                {
+                    infoTxt = _player switch
+                    {
+                        MoveType.RedAeroWest => "(先竜回収 -> 波西避け)",
+                        MoveType.RedAeroEast => "(波南避け -> ダッシュ)",
+                        _ => ""
+                    };
                 }
             }
         }
@@ -831,8 +918,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         {
             var direction = Direction.West;
             if (C.PrioritizeMarker &&
-                _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker is
-                    { } marker)
+                _players.FirstOrDefault(x => x.Value.PlayerName == BasePlayer.Name.ToString()).Value?.Marker is { } marker)
             {
                 direction = marker switch
                 {
@@ -853,38 +939,38 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             }
             else
             {
-                if (player == C.WestSentence)
+                if (player.Equals(C.WestSentence))
                     direction = Direction.West;
-                else if (player == C.SouthWestSentence)
+                else if (player.Equals(C.SouthWestSentence))
                     direction = Direction.SouthWest;
-                else if (player == C.SouthEastSentence)
+                else if (player.Equals(C.SouthEastSentence))
                     direction = Direction.SouthEast;
-                else if (player == C.EastSentence)
+                else if (player.Equals(C.EastSentence))
                     direction = Direction.East;
             }
 
-            if (C.PrioritizeMarker && directionTxt == "") directionTxt = "(マーカーなし)";
+            if (C.PrioritizeMarker && string.IsNullOrEmpty(directionTxt))
+                directionTxt = "(マーカーなし)";
 
-            var cleanses = Cleanses.ToArray();
-
+            var cleanses = GetCleanses().ToArray();
             if (cleanses.Length >= 4)
             {
                 var position = direction switch
                 {
-                    Direction.West => cleanses[0].Position.ToVector2(),
-                    Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                    Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                    Direction.East => cleanses[3].Position.ToVector2(),
-                    _ => new Vector2(100, 100)
+                    Direction.West      => cleanses[0],
+                    Direction.SouthWest => cleanses[1],
+                    Direction.SouthEast => cleanses[2],
+                    Direction.East      => cleanses[3],
+                    _                   => new Vector2(100, 100)
                 };
 
                 if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
                 {
-                    element.radius = 0.5f;
+                    element.radius = 0.2f;
                     element.SetOffPosition(position.ToVector3(0));
                     element.overlayText = C.CleansePosText.Get();
                     element.overlayFScale = 2f;
-                    element.overlayVOffset = 2f;
+                    element.overlayVOffset = 1f;
                     element.tether = true;
                 }
 
@@ -894,15 +980,15 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                                             .Select(e => e.ToString())
                                             .Where(name => name.StartsWith("Blue") && name != player.ToString())
                                             .ToList();
-                    if (items.Count() > 0 && direction != C.WhenAttack1)
+                    if (items.Count > 0 && direction != C.WhenAttack1)
                     {
                         var CleansePos = C.WhenAttack1 switch
                         {
-                            Direction.West => cleanses[0].Position.ToVector2(),
-                            Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                            Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                            Direction.East => cleanses[3].Position.ToVector2(),
-                            _ => new Vector2(100, 100)
+                            Direction.West      => cleanses[0],
+                            Direction.SouthWest => cleanses[1],
+                            Direction.SouthEast => cleanses[2],
+                            Direction.East      => cleanses[3],
+                            _                   => new Vector2(100, 100)
                         };
                         if (Controller.TryGetElementByName(items[0], out var element1))
                         {
@@ -917,15 +1003,15 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         items.RemoveAt(0);
                     }
 
-                    if (items.Count() > 0 && direction != C.WhenAttack2)
+                    if (items.Count > 0 && direction != C.WhenAttack2)
                     {
                         var CleansePos = C.WhenAttack2 switch
                         {
-                            Direction.West => cleanses[0].Position.ToVector2(),
-                            Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                            Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                            Direction.East => cleanses[3].Position.ToVector2(),
-                            _ => new Vector2(100, 100)
+                            Direction.West      => cleanses[0],
+                            Direction.SouthWest => cleanses[1],
+                            Direction.SouthEast => cleanses[2],
+                            Direction.East      => cleanses[3],
+                            _                   => new Vector2(100, 100)
                         };
                         if (Controller.TryGetElementByName(items[0], out var element2))
                         {
@@ -940,15 +1026,15 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         items.RemoveAt(0);
                     }
 
-                    if (items.Count() > 0 && direction != C.WhenAttack3)
+                    if (items.Count > 0 && direction != C.WhenAttack3)
                     {
                         var CleansePos = C.WhenAttack3 switch
                         {
-                            Direction.West => cleanses[0].Position.ToVector2(),
-                            Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                            Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                            Direction.East => cleanses[3].Position.ToVector2(),
-                            _ => new Vector2(100, 100)
+                            Direction.West      => cleanses[0],
+                            Direction.SouthWest => cleanses[1],
+                            Direction.SouthEast => cleanses[2],
+                            Direction.East      => cleanses[3],
+                            _                   => new Vector2(100, 100)
                         };
                         if (Controller.TryGetElementByName(items[0], out var element3))
                         {
@@ -963,15 +1049,15 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         items.RemoveAt(0);
                     }
 
-                    if (items.Count() > 0 && direction != C.WhenAttack4)
+                    if (items.Count > 0 && direction != C.WhenAttack4)
                     {
                         var CleansePos = C.WhenAttack4 switch
                         {
-                            Direction.West => cleanses[0].Position.ToVector2(),
-                            Direction.SouthWest => cleanses[1].Position.ToVector2(),
-                            Direction.SouthEast => cleanses[2].Position.ToVector2(),
-                            Direction.East => cleanses[3].Position.ToVector2(),
-                            _ => new Vector2(100, 100)
+                            Direction.West      => cleanses[0],
+                            Direction.SouthWest => cleanses[1],
+                            Direction.SouthEast => cleanses[2],
+                            Direction.East      => cleanses[3],
+                            _                   => new Vector2(100, 100)
                         };
                         if (Controller.TryGetElementByName(items[0], out var element4))
                         {
@@ -986,24 +1072,25 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                         items.RemoveAt(0);
                     }
                 }
-            } else
+            }
+            else
             {
                 var position = direction switch
                 {
-                    Direction.West => new Vector2(92, 100),
+                    Direction.West      => new Vector2(92, 100),
                     Direction.SouthWest => new Vector2(91, 109),
                     Direction.SouthEast => new Vector2(109, 109),
-                    Direction.East => new Vector2(108, 100),
-                    _ => new Vector2(100, 100)
+                    Direction.East      => new Vector2(108, 100),
+                    _                   => new Vector2(100, 100)
                 };
 
                 if (Controller.TryGetElementByName(SwapIfNecessary(player), out var element))
                 {
-                    element.radius = 0.5f;
+                    element.radius = 0.1f;
                     element.SetOffPosition(position.ToVector3(0));
                     element.overlayText = C.CleansePosText.Get() + "?";
                     element.overlayFScale = 2f;
-                    element.overlayVOffset = 2f;
+                    element.overlayVOffset = 1f;
                     element.tether = true;
                 }
             }
@@ -1012,14 +1099,18 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         if (BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Blue))
         {
             var remainingTime = SpellInWaitingDebuffTime > 0 ? SpellInWaitingDebuffTime : ReturnDebuffTime;
-            Alert(C.CleanseText.Get() + directionTxt + ( $" ({remainingTime:0.0}s)"));
+            Alert(C.CleanseText.Get() + directionTxt + $" ({remainingTime:0.0}s)");
         }
         else
+        {
             HideAlert();
+        }
     }
 
     private void PlaceReturn(bool discreet = false)
     {
+        CheckCleanses();
+
         if (C.NukemaruRewind)
             NukemaruPlaceReturn(discreet);
         else if (C.KBIRewind)
@@ -1323,6 +1414,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                             C.WaitRange.X = C.WaitRange.Y;
                     }
                 }
+                ImGui.Checkbox("頭割り処理後に自身にマーカーが無い場合、再度コマンドを実行", ref C.CommandWhenBlueDebuffAgain);
+                ImGuiEx.HelpMarker("ランダム待機の時間が長すぎる場合、正常に動作しない可能性があります。");
 
                 ImGui.Separator();
                 ImGuiEx.EnumCombo("攻撃1の時", ref C.WhenAttack1);
@@ -1537,26 +1630,38 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
             if (ImGui.CollapsingHeader("優先リスト"))
             {
-                var players = C.PriorityData?.GetPlayers(x => true);
-                if (C.PriorityData != null && players != null)
+                if (C.PriorityData != null)
                 {
-                    ImGuiEx.Text(players.Select(x => x.NameWithWorld).Print("\n"));
-                    var redPlayers = C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
-                    { Color: Debuff.Red, Debuff: Debuff.Blizzard });
-                    if (redPlayers != null)
-                    {
-                        ImGui.Separator();
-                        ImGuiEx.Text("赤ブリザード:");
-                        ImGuiEx.Text(redPlayers.Select(x => x.NameWithWorld).Print("\n"));
+                    var players = C.PriorityData.GetPlayers(x => true);
+                    if (players != null) {
+                        ImGuiEx.Text(players.Select(x => x.NameWithWorld).Print("\n"));
+                        var redPlayers = C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
+                        { Color: Debuff.Red, Debuff: Debuff.Blizzard });
+                        if (redPlayers != null)
+                        {
+                            ImGui.Separator();
+                            ImGuiEx.Text("赤ブリザード:");
+                            ImGuiEx.Text(redPlayers.Select(x => x.NameWithWorld).Print("\n"));
+                        } else {
+                            ImGui.Separator();
+                            ImGuiEx.Text("赤ブリザードの優先リスト取得に失敗");
+                        }
+                        var aeroPlayers = C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
+                        { Color: Debuff.Red, Debuff: Debuff.Aero });
+                        if (aeroPlayers != null)
+                        {
+                            ImGui.Separator();
+                            ImGuiEx.Text("赤エアロ:");
+                            ImGuiEx.Text(aeroPlayers.Select(x => x.NameWithWorld).Print("\n"));
+                        } else {
+                            ImGui.Separator();
+                            ImGuiEx.Text("赤エアロの優先リスト取得に失敗");
+                        }
+                    } else {
+                        ImGuiEx.Text("優先リストのプレイヤー取得に失敗");
                     }
-                    var aeroPlayers = C.PriorityData.GetPlayers(x => _players.First(y => y.Value.PlayerName == x.Name).Value is
-                    { Color: Debuff.Red, Debuff: Debuff.Aero });
-                    if (aeroPlayers != null)
-                    {
-                        ImGui.Separator();
-                        ImGuiEx.Text("赤エアロ:");
-                        ImGuiEx.Text(aeroPlayers.Select(x => x.NameWithWorld).Print("\n"));
-                    }
+                } else {
+                    ImGuiEx.Text("優先リストの読込に失敗");
                 }
             }
         }
@@ -1825,6 +1930,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         public InternationalString CleanseText = new() { En = "Get Cleanse", Jp = "白を取れ！" };
         public InternationalString CleansePosText = new() { En = "<< Go Here >>", Jp = "<< 白床位置 >>" };
         public string CommandWhenBlueDebuff = "";
+        public bool CommandWhenBlueDebuffAgain = false;
         public MoveType EastSentence = MoveType.BlueBlizzard;
 
         public bool HighlightSplitPosition;

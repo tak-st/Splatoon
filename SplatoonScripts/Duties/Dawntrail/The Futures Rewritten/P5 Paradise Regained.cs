@@ -851,8 +851,8 @@ public class P5_Paradise_Regained : SplatoonScript
         public bool ShowAOE = true;
         public bool ShowPredict = true;
         public TowerType TowerType = TowerType.First;
-        public InternationalString LeftText = new() { En = "Left", Jp = "左安置" };
-        public InternationalString RightText = new() { En = "Right", Jp = "右安置" };
+        public InternationalString LeftText = new() { En = "Left", Jp = "←左安置" };
+        public InternationalString RightText = new() { En = "Right", Jp = "→右安置" };
         public InternationalString FarText = new() { En = "Far", Jp = "離れる" };
         public InternationalString NearText = new() { En = "Near", Jp = "近づく" };
     }

@@ -22,7 +22,9 @@ https://github.com/tak-st/Splatoon/raw/main/SplatoonScripts/Duties/Dawntrail/The
 
 ## P2 自動ターゲットクリスタル
 公式スクリプトのv1に追従済
+- インターバル変更機能を追加
 - 一定範囲以内にある氷晶だけを対象にする を追加
+- HPが低い氷晶は対象としない を追加
 ```
 https://github.com/tak-st/Splatoon/raw/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/P2%20AutoTargetCrystal.cs
 ```
@@ -38,9 +40,11 @@ https://github.com/tak-st/Splatoon/raw/main/SplatoonScripts/Duties/Dawntrail/The
 ## P4 時間結晶
 公式スクリプトのv12に追従済
 - 設定の日本語化
+- 各フェーズの残り時間を表示
 - ハムカツ式のタンク位置に対応
 - 自身から出現位置が遠い竜に当たる を追加
-- ランダム待機範囲 (秒) の上限を7秒まで増加
+- 赤エアロ時、波の避け方を表示
+- ランダム待機範囲 (秒) の上限を14秒まで増加
 - リターン位置が北かつ担当位置が2または3の場合、テイカー散会時に白床を回収 を追加
 - 各行動の制限時間が表示されるように変更
 - リターン位置の表示位置を調整
@@ -49,6 +53,7 @@ https://github.com/tak-st/Splatoon/raw/main/SplatoonScripts/Duties/Dawntrail/The
 - 位置を強制表示する残り時間 を追加
 - 他人を表示するオプションで動作とリターン位置を別々に設定できるように
 - 担当でない白床も表示出来るように
+- 青デバフ時に何らかの原因でマーカーが付かなかった場合にコマンドを再実行する機能を追加
 ```
 https://github.com/tak-st/Splatoon/raw/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/P4%20Crystallize%20Time.cs
 ```
@@ -69,6 +74,7 @@ https://github.com/tak-st/Splatoon/raw/main/SplatoonScripts/Duties/Dawntrail/The
 公式スクリプトのv4に追従済
 - 2個目の安全塔に入る設定の際に1個目の安全塔が光るように（ぬけまる式で使用）
 - 中央に安置の方向・近づく離れるが表示されるように
+- 攻撃方向が確定してから表示を行うように
 ```
 https://github.com/tak-st/Splatoon/raw/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/P5%20Paradise%20Regained.cs
 ```
