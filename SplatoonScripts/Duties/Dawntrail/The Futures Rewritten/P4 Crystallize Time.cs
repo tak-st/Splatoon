@@ -745,6 +745,54 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         Alert(C.AvoidWaveText.Get() + directionTxt + $" ({remainingTime:0.0}s)");
     }
 
+    private string GetRedAeroInfoText(MoveType player) {
+        if (_firstWaveDirection == Direction.West)
+        {
+            if (_lateHourglassDirection is Direction.NorthEast) // ／
+            {
+                return player switch
+                {
+                    MoveType.RedAeroWest => "(波南避け -> ダッシュ)",
+                    MoveType.RedAeroEast => "(先竜回収 -> 波東避け)",
+                    _ => ""
+                };
+            }
+            else // ＼
+            {
+                return player switch
+                {
+                    MoveType.RedAeroWest => "(早爆発 -> 波西避け)",
+                    MoveType.RedAeroEast => "(遅爆発 -> 先竜回収 -> 波東避け)",
+                    _ => ""
+                };
+            }
+        }
+
+        if (_firstWaveDirection == Direction.East)
+        {
+            if (_lateHourglassDirection is Direction.NorthEast) // ／
+            {
+                return player switch
+                {
+                    MoveType.RedAeroWest => "(遅爆発 -> 先竜回収 -> 波西避け)",
+                    MoveType.RedAeroEast => "(早爆発 -> 波東避け)",
+                    _ => ""
+                };
+            }
+            else // ＼
+            {
+                return player switch
+                {
+                    MoveType.RedAeroWest => "(先竜回収 -> 波西避け)",
+                    MoveType.RedAeroEast => "(波南避け -> ダッシュ)",
+                    _ => ""
+                };
+            }
+        }
+
+        return "";
+    }
+
     private void HitDragonAndAero()
     {
         var infoTxt = "";
@@ -799,97 +847,13 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
             if (player == myMove)
             {
-                if (_firstWaveDirection == Direction.West)
-                {
-                    if (_lateHourglassDirection is Direction.NorthEast) // ／
-                    {
-                        infoTxt = player switch
-                        {
-                            MoveType.RedAeroWest => "(波南避け -> ダッシュ)",
-                            MoveType.RedAeroEast => "(先竜回収 -> 波東避け)",
-                            _ => ""
-                        };
-                    }
-                    else // ＼
-                    {
-                        infoTxt = player switch
-                        {
-                            MoveType.RedAeroWest => "(早爆発 -> 波西避け)",
-                            MoveType.RedAeroEast => "(遅爆発 -> 先竜回収 -> 波東避け)",
-                            _ => ""
-                        };
-                    }
-                }
-
-                if (_firstWaveDirection == Direction.East)
-                {
-                    if (_lateHourglassDirection is Direction.NorthEast) // ／
-                    {
-                        infoTxt = player switch
-                        {
-                            MoveType.RedAeroWest => "(遅爆発 -> 先竜回収 -> 波西避け)",
-                            MoveType.RedAeroEast => "(早爆発 -> 波東避け)",
-                            _ => ""
-                        };
-                    }
-                    else // ＼
-                    {
-                        infoTxt = player switch
-                        {
-                            MoveType.RedAeroWest => "(先竜回収 -> 波西避け)",
-                            MoveType.RedAeroEast => "(波南避け -> ダッシュ)",
-                            _ => ""
-                        };
-                    }
-                }
+                infoTxt = GetRedAeroInfoText(player);
             }
         }
 
         if (infoTxt == "") {
             var _player = (BasePlayer.Position.X < 100 ? MoveType.RedAeroWest : MoveType.RedAeroEast);
-            if (_firstWaveDirection == Direction.West)
-            {
-                if (_lateHourglassDirection is Direction.NorthEast) // ／
-                {
-                    infoTxt = _player switch
-                    {
-                        MoveType.RedAeroWest => "(波南避け -> ダッシュ)",
-                        MoveType.RedAeroEast => "(先竜回収 -> 波東避け)",
-                        _ => ""
-                    };
-                }
-                else // ＼
-                {
-                    infoTxt = _player switch
-                    {
-                        MoveType.RedAeroWest => "(早爆発 -> 波西避け)",
-                        MoveType.RedAeroEast => "(遅爆発 -> 先竜回収 -> 波東避け)",
-                        _ => ""
-                    };
-                }
-            }
-
-            if (_firstWaveDirection == Direction.East)
-            {
-                if (_lateHourglassDirection is Direction.NorthEast) // ／
-                {
-                    infoTxt = _player switch
-                    {
-                        MoveType.RedAeroWest => "(遅爆発 -> 先竜回収 -> 波西避け)",
-                        MoveType.RedAeroEast => "(早爆発 -> 波東避け)",
-                        _ => ""
-                    };
-                }
-                else // ＼
-                {
-                    infoTxt = _player switch
-                    {
-                        MoveType.RedAeroWest => "(先竜回収 -> 波西避け)",
-                        MoveType.RedAeroEast => "(波南避け -> ダッシュ)",
-                        _ => ""
-                    };
-                }
-            }
+            infoTxt = GetRedAeroInfoText(_player);
         }
 
         //if (myMove is MoveType.RedAeroEast or MoveType.RedAeroWest)
@@ -1684,6 +1648,20 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             ImGui.Text($"Late Hourglass Direction: {_lateHourglassDirection.ToString()}");
             ImGui.Text($"First Wave Direction: {_firstWaveDirection.ToString()}");
             ImGui.Text($"Second Wave Direction: {_secondWaveDirection.ToString()}");
+            
+            if (_firstWaveDirection != null) {
+                ImGui.Text($"RedAero West Info: {GetRedAeroInfoText(MoveType.RedAeroWest)}");
+                ImGui.Text($"RedAero East Info: {GetRedAeroInfoText(MoveType.RedAeroEast)}");
+            } else {
+                ImGui.Text($"RedAero West Info: ");
+                ImGui.Text($"RedAero East Info: ");
+            }
+            
+            if (_cachedCleanses != null) {
+                ImGui.Text($"Cleanses: {string.Join(", ", _cachedCleanses.Select(pos => $"[{pos.X}, {pos.Y}]"))}");
+            } else {
+                ImGui.Text($"Cleanses: ");
+            }
 
             ImGuiEx.EzTable("Player Data", _players.SelectMany(x => new ImGuiEx.EzTableEntry[]
             {
@@ -1691,6 +1669,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 new("Color", () => ImGuiEx.Text(x.Value.Color.ToString())),
                 new("Debuff", () => ImGuiEx.Text(x.Value.Debuff.ToString())),
                 new("Has Quietus", () => ImGuiEx.Text(x.Value.HasQuietus.ToString())),
+                new("Marker", () => ImGuiEx.Text(x.Value.Marker.ToString())),
                 new("Move Type", () => ImGuiEx.Text(x.Value.MoveType.ToString()))
             }));
 
