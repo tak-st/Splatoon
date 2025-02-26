@@ -1658,7 +1658,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             }
             
             if (_cachedCleanses != null) {
-                ImGui.Text($"Cleanses: {string.Join(", ", _cachedCleanses.Select(pos => $"[{pos.X}, {pos.Y}]"))}");
+                ImGui.Text($"Cleanses: {string.Join(", ", _cachedCleanses.Select(pos => $"[{pos.X:F2}, {pos.Y:F2}]"))}");
             } else {
                 ImGui.Text($"Cleanses: ");
             }
