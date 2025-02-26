@@ -68,7 +68,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
     private List<float> ExtraRandomness = [];
     private bool Initialized;
     private bool useCommandAgain = false;
-    public override Metadata? Metadata => new(20, "Garume, NightmareXIV + TS");
+    public override Metadata? Metadata => new(20, "Garume, NightmareXIV + TS", "", "https://github.com/tak-st/Splatoon/blob/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/README.md");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -1326,11 +1326,11 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
     public override void OnSettingsDraw()
     {
-        ImGuiEx.Text(EColor.RedBright, """
-                                       This script has not been thoroughly tested.
-                                       It may not work properly.
-                                       If you encounter any bugs, please let us know.
-                                       """);
+        ImGuiEx.Text("TS Fork Version " + Metadata.Version);
+        if(Metadata.Website && ImGui.Selectable("Read Me"))
+        {
+            GenericHelpers.ShellStart(Metadata.Website);
+        }
         if (ImGuiEx.CollapsingHeader("General"))
         {
             ImGuiEx.Text("優先順位");

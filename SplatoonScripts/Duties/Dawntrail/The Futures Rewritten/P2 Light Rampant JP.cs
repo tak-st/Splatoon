@@ -43,7 +43,7 @@ public class P2_Light_Rampant_JP : SplatoonScript
 
     private State _state = State.None;
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(3, "Garume + TS");
+    public override Metadata? Metadata => new(3, "Garume + TS", "", "https://github.com/tak-st/Splatoon/blob/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/README.md");
 
     public Config C => Controller.GetConfig<Config>();
 
@@ -137,6 +137,12 @@ public class P2_Light_Rampant_JP : SplatoonScript
 
     public override void OnSettingsDraw()
     {
+        ImGuiEx.Text("TS Fork Version " + Metadata.Version);
+        if(Metadata.Website && ImGui.Selectable("Read Me"))
+        {
+            GenericHelpers.ShellStart(Metadata.Website);
+        }
+        ImGui.Separator();
         ImGui.SliderInt("Players Count", ref C.PlayersCount, 0, 3);
         
         switch (C.PlayersCount)

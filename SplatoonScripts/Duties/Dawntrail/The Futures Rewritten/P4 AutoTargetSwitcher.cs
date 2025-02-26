@@ -30,7 +30,7 @@ public class P4_AutoTargetSwitcher : SplatoonScript
     private float _lastMinPercentage;
     private int _mornAfahCount;
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(9, "Garume + TS");
+    public override Metadata? Metadata => new(9, "Garume + TS", "", "https://github.com/tak-st/Splatoon/blob/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/README.md");
 
     private Config C => Controller.GetConfig<Config>();
 
@@ -65,6 +65,12 @@ public class P4_AutoTargetSwitcher : SplatoonScript
 
     public override void OnSettingsDraw()
     {
+        ImGuiEx.Text("TS Fork Version " + Metadata.Version);
+        if(Metadata.Website && ImGui.Selectable("Read Me"))
+        {
+            GenericHelpers.ShellStart(Metadata.Website);
+        }
+        ImGui.Separator();
         ImGui.Text("オートターゲットスイッチャー");
         ImGui.Text("ターゲットオブジェクトを自動で切り替えます");
 
