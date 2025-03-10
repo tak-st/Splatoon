@@ -547,6 +547,14 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         {
             if (Svc.Objects.Any(x => x.DataId == 17837) && !BasePlayer.IsDead)
             {
+                var myMove = _players.SafeSelect(BasePlayer.GameObjectId)?.MoveType;
+                if (C.UseMitigationDragon && C.MitigationDragonAction != 0 &&
+                    myMove is MoveType.RedBlizzardEast or MoveType.RedBlizzardWest &&
+                    !BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Red) &&
+                    BasePlayer.StatusList.Any(x =>
+                        x.StatusId == (uint)Debuff.Return && x.RemainingTime < 20.5f + ExtraRandomness.SafeSelect(2) &&
+                        x.RemainingTime > 18f))
+                    AutoCast(C.MitigationDragonAction);
                 if (C.UseKbiAuto &&
                     BasePlayer.StatusList.Any(x =>
                         x.StatusId == (uint)Debuff.Return && x.RemainingTime < 2f + ExtraRandomness.SafeSelect(0)))
@@ -1247,8 +1255,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     westTankPosition += new Vector2(-3f, -0.5f);
                     eastTankPosition += new Vector2(0.5f, 3f);
                 }
-                westPosition += new Vector2(-7f, 5f);
-                eastPosition += new Vector2(-5f, 7f);
+                westPosition += new Vector2(-8f, 4f);
+                eastPosition += new Vector2(-4f, 8f);
                 break;
             case Direction.SouthEast:
                 if (C.hamukatuRewind) {
@@ -1258,8 +1266,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     westTankPosition += new Vector2(-3f, 0.5f);
                     eastTankPosition += new Vector2(0.5f, -3f);
                 }
-                westPosition += new Vector2(-7f, -5f);
-                eastPosition += new Vector2(-5f, -7f);
+                westPosition += new Vector2(-8f, -4f);
+                eastPosition += new Vector2(-4f, -8f);
                 break;
             case Direction.SouthWest:
                 if (C.hamukatuRewind) {
@@ -1269,8 +1277,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     westTankPosition += new Vector2(-0.5f, -3f);
                     eastTankPosition += new Vector2(3f, 0.5f);
                 }
-                westPosition += new Vector2(5f, -7f);
-                eastPosition += new Vector2(7f, -5f);
+                westPosition += new Vector2(4f, -8f);
+                eastPosition += new Vector2(8f, -4f);
                 break;
             default:
                 if (C.hamukatuRewind) {
@@ -1280,8 +1288,8 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                     westTankPosition += new Vector2(-0.5f, 3f);
                     eastTankPosition += new Vector2(3f, -0.5f);
                 }
-                westPosition += new Vector2(5f, 7f);
-                eastPosition += new Vector2(7f, 5f);
+                westPosition += new Vector2(4f, 8f);
+                eastPosition += new Vector2(8f, 4f);
                 break;
         }
 
@@ -1358,6 +1366,18 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             {
                 ImGui.Indent();
                 ImGui.Checkbox("自動でスプリントを使用 ~1秒", ref C.UseSprintAuto);
+                ImGui.Unindent();
+            }
+
+            ImGui.Checkbox("赤ブリ竜当たり後にアクションを自動使用", ref C.UseMitigationDragon);
+            if (C.UseMitigationDragon)
+            {
+                ImGui.Indent();
+                var actions = Ref<Dictionary<uint, string>>.Get(InternalData.FullName + "dragonMitigations",
+                    () => Svc.Data.GetExcelSheet<Action>()
+                        .Where(x => x.IsPlayerAction && x.ClassJobCategory.RowId != 0 && x.ActionCategory.RowId == 4)
+                        .ToDictionary(x => x.RowId, x => x.Name.ExtractText()));
+                ImGuiEx.Combo("アクションを選択", ref C.MitigationDragonAction, actions.Keys, names: actions);
                 ImGui.Unindent();
             }
 
@@ -1936,6 +1956,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
 
         public bool KBIRewind;
         public uint MitigationAction;
+        public uint MitigationDragonAction;
 
         public bool NoWindWait = false;
         public bool NukemaruRewind;
@@ -1968,6 +1989,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
         public uint TankMitigationAction;
         public bool UseKbiAuto;
         public bool UseMitigation;
+        public bool UseMitigationDragon;
         public bool UseSprintAuto;
         public bool UseTankMitigation;
         public Vector2 WaitRange = new(0.5f, 1.5f);
