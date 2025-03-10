@@ -88,7 +88,7 @@ public class P5_Paradise_Regained : SplatoonScript
     private State _state = State.None;
 
     public override HashSet<uint>? ValidTerritories => [1238];
-    public override Metadata? Metadata => new(8, "Garume + TS", "", "https://github.com/tak-st/Splatoon/blob/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/README.md");
+    public override Metadata? Metadata => new(9, "Garume + TS", "", "https://github.com/tak-st/Splatoon/blob/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/README.md");
 
     public Config C => Controller.GetConfig<Config>();
 
@@ -104,7 +104,8 @@ public class P5_Paradise_Regained : SplatoonScript
             thicc = 6f,
             overlayFScale = 3f,
             overlayVOffset = 3f,
-            overlayText = GoHereText.Get()
+            overlayText = GoHereText.Get(),
+            tether = true
         });
         Controller.TryRegisterElement("PredictTower", new Element(0)
         {

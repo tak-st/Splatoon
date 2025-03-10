@@ -68,7 +68,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
     private List<float> ExtraRandomness = [];
     private bool Initialized;
     private bool useCommandAgain = false;
-    public override Metadata? Metadata => new(20, "Garume, NightmareXIV + TS", "", "https://github.com/tak-st/Splatoon/blob/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/README.md");
+    public override Metadata? Metadata => new(21, "Garume, NightmareXIV + TS", "", "https://github.com/tak-st/Splatoon/blob/main/SplatoonScripts/Duties/Dawntrail/The%20Futures%20Rewritten/README.md");
 
     public override Dictionary<int, string> Changelog => new()
     {
@@ -734,6 +734,13 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 element.radius = 1f;
                 element.SetOffPosition(position.ToVector3(0));
             }
+            
+            if (_firstWaveDirection != null && player is (MoveType.RedAeroWest or MoveType.RedAeroEast) && BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Red)) {
+                if (player == myMove)
+                {
+                    infoTxt = GetRedAeroInfoText(player);
+                }
+            }
         }
 
         if (!useCommandAgain && directionTxt == "(マーカーなし)") {
@@ -741,6 +748,7 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
             var random = RandomNumberGenerator.GetInt32((int)0, (int)1000);
             Controller.Schedule(() => { Chat.Instance.ExecuteCommand(C.CommandWhenBlueDebuff); }, random);
         }
+
         var remainingTime = SpellInWaitingDebuffTime;
         Alert(C.AvoidWaveText.Get() + directionTxt + $" ({remainingTime:0.0}s)");
     }
