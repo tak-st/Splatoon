@@ -742,11 +742,12 @@ public unsafe class P4_Crystallize_Time : SplatoonScript
                 element.radius = 1f;
                 element.SetOffPosition(position.ToVector3(0));
             }
-            
+
+            var myMove = _players.SafeSelect(BasePlayer.GameObjectId)?.MoveType;
             if (_firstWaveDirection != null && player is (MoveType.RedAeroWest or MoveType.RedAeroEast) && BasePlayer.StatusList.Any(x => x.StatusId == (uint)Debuff.Red)) {
                 if (player == myMove)
                 {
-                    infoTxt = GetRedAeroInfoText(player);
+                    directionTxt = GetRedAeroInfoText(player);
                 }
             }
         }
